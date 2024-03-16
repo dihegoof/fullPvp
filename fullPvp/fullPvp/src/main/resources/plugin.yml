@@ -1,0 +1,34 @@
+name: fullPvp
+version: 0.0.1-SNAPSHOT
+description: This is a simple Bukkit Plugin
+author: buteco
+main: com.br.fullPvp.Main
+commands:
+   cash:
+   money:
+     aliases: [coin, real]
+   profile:
+     aliases: [perfil, account, conta, acc]
+   groups:
+     aliases: [group, grupo]
+   ranks:
+     aliases: [rank]
+   rankup:
+   links:
+     aliases: [midia, midias, link]
+   reputation:
+     aliases: [reputacao]
+   warps: 
+     aliases: [warp]
+   tags:
+     aliases: [tag]
+   admin:
+     aliases: [v]
+   chatglobal:
+   chatlocal:
+   manutence:
+     aliases: [manutencao, whitelist]
+   gamemode:
+     aliases: [gm]
+   clans:
+     aliases: [clan, cla]

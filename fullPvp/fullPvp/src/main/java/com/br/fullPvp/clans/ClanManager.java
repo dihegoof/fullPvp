@@ -74,7 +74,7 @@ public class ClanManager {
 				for(String names : Arrays.asList(rs.getString("enemies").split(", "))) { 
 					enemies.add(names);
 				}
-				Clan clan = new Clan(rs.getString("name"), rs.getString("tag"), rs.getString("leadder"), rs.getString("motto"), (members.get(0).equals("null") ? new ArrayList<String>() : members), (climbed.get(0).equals("null") ? new ArrayList<String>() : climbed), (invites.get(0).equals("null") ? new ArrayList<String>() : invites), (allies.get(0).equals("null") ? new ArrayList<String>() : allies), (enemies.get(0).equals("null") ? new ArrayList<String>() : enemies), rs.getDouble("real"), rs.getLong("createdin"), rs.getBoolean("pvp"), null, new ArrayList<String>());
+				Clan clan = new Clan(rs.getString("name"), rs.getString("tag"), rs.getString("leadder"), rs.getString("motto"), (members.get(0).equals("null") ? new ArrayList<String>() : members), (climbed.get(0).equals("null") ? new ArrayList<String>() : climbed), (invites.get(0).equals("null") ? new ArrayList<String>() : invites), (allies.get(0).equals("null") ? new ArrayList<String>() : allies), (enemies.get(0).equals("null") ? new ArrayList<String>() : enemies), rs.getDouble("real"), rs.getLong("createdin"), rs.getBoolean("pvp"), null);
 				clan.loadStatus();
 				add(clan);
 				amount++;

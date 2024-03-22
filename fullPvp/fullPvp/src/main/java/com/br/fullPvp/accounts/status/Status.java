@@ -72,4 +72,11 @@ public class Status {
 			this.deaths = (deaths < amount ? 0 : deaths - amount);
 		}
 	}
+	
+	public double getKdr() {
+		if(kills == 0 && deaths == 0) { 
+			return 0.0;
+		}
+		return kills / deaths;
+	}
 }

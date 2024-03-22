@@ -66,7 +66,7 @@ public enum SqlQuerys {
 	CLAN_SELECT("SELECT * FROM `fullpvp_clans` WHERE `name`=?"),
 	CLAN_SELECT_ALL("SELECT * FROM `fullpvp_clans`;"),
 	CLAN_INSERT("INSERT INTO `fullpvp_clans` (`name`,`tag`,`leadder`,`motto`,`members`,`climbed`,`invites`,`allies`,`enemies`,`real`,`createdin`,`pvp`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);"),
-	CLAN_UPDATE("UPDATE `fullpvp_clans` SET `tag`=?,`leadder`=?,`motto`=?,`members`=?,`climbed`=?,`invites`=?,`allies`=?,`enemies`=?,`createdin`=?,`pvp`=? WHERE `name`=?"),
+	CLAN_UPDATE("UPDATE `fullpvp_clans` SET `tag`=?,`motto`=?,`members`=?,`climbed`=?,`invites`=?,`allies`=?,`enemies`=?,`real`=?,`createdin`=?,`pvp`=? WHERE `name`=?"),
 	CLAN_DELETE("DELETE FROM `fullpvp_clans` WHERE `name`=?"),
 	
 	CLAN_STATUS_CREATE_TABLE("CREATE TABLE IF NOT EXISTS `fullpvp_clans_status` (`clanname` VARCHAR(32), `kills` DOUBLE, `deaths` DOUBLE, `killstreak` DOUBLE);"),

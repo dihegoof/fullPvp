@@ -71,4 +71,11 @@ public class ClanStats {
 			this.killStreak += 1;
 		}
 	}
+	
+	public double getKdr() {
+		if(kills == 0 && deaths == 0) { 
+			return 0.0;
+		}
+		return kills / deaths;
+	}
 }

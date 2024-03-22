@@ -51,7 +51,10 @@ public class AccountInventory extends Utils {
 			}
 		} else if(typeInventory.equals(TypeInventoryAccount.STATUS)) { 
 			inventory = Bukkit.createInventory(player, 27, account.getNickName().equals(player.getName()) ? "Seu status" : "Status de " + account.getNickName());
-			ib = new ItemBuilder(Material.DIAMOND_SWORD).setName("§aStatus").setDescription("§fMatou §7" + 0, "§fMorreu §7" + 0, "§fKDR §7" + 0.0);
+			ib = new ItemBuilder(Material.DIAMOND_SWORD).setName("§aStatus").setDescription(
+					"§fMatou §7" + formatMoney(account.getStatus().getKills()).replace("R$", ""), 
+					"§fMorreu §7" + formatMoney(account.getStatus().getDeaths()).replace("R$", ""), 
+					"§fKDR §7" + formatMoney(account.getStatus().getKdr()).replace("R$", ""));
 			ib.build(inventory, 13);
 			
 			ib = new ItemBuilder(Material.ARROW).setName("§cVoltar").setDescription("§7Clique aqui para voltar ao menu!");

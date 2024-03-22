@@ -268,7 +268,7 @@ public class Account {
 					clan = ClanManager.getInstance().get(getClanName());
 					if(clan == null) return;
 				}
-				TagUpdate.getInstance().setTag(getNickName(), (!hasOtherTag() ? group.getPrefix() + " " : tag.getPrefix() + " "), (clan != null ? " §7[" + clan.getTag() + "]" : ""), group.getPriority());
+				TagUpdate.getInstance().setTag(getNickName(), (!hasOtherTag() ? (group.getPrefix().length() == 2 ? group.getPrefix() : group.getPrefix() + " ") : (tag.getPrefix().length() == 2 ? tag.getPrefix() : tag.getPrefix() + " ")), (clan != null ? " §7[" + clan.getTag() + "]" : ""), group.getPriority());
 			}
 		}
 	}

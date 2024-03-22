@@ -16,6 +16,8 @@ import com.br.fullPvp.accounts.TypeCoin;
 import com.br.fullPvp.clans.Clan;
 import com.br.fullPvp.clans.ClanGroup;
 import com.br.fullPvp.clans.ClanManager;
+import com.br.fullPvp.inventorys.ClanInventory;
+import com.br.fullPvp.inventorys.ClanInventory.TypeInventoryClan;
 import com.br.fullPvp.utils.ActionBar;
 import com.br.fullPvp.utils.Utils;
 
@@ -30,7 +32,8 @@ public class Clans extends Utils implements CommandExecutor {
 			Clan clan = null;
 			if(args.length == 0) { 
 				if(account.hasClan()) { 
-					//Abrir inventário
+					clan = ClanManager.getInstance().get(account.getClanName());
+					ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
 				} else { 
 					sintax(account, label);
 				}
@@ -45,7 +48,7 @@ public class Clans extends Utils implements CommandExecutor {
 							if(clan == null) return true;
 							boolean has = false;
 							List<String> members = clan.getMembers();
-							Iterator<String> iterator =  clan.getMembers().iterator();
+							Iterator<String> iterator = clan.getMembers().iterator();
 							while(iterator.hasNext()) { 
 								String[] split = iterator.next().split(";");
 								if(split[0].equalsIgnoreCase(player.getName())) { 
@@ -91,7 +94,7 @@ public class Clans extends Utils implements CommandExecutor {
 				if(args[0].equalsIgnoreCase("info")) { 
 					clan = ClanManager.getInstance().get(args[1]);
 					if(clan != null) { 
-						//Abrir inventário
+						ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
 					} else { 
 						sendMessage(player, false, "§cEste clã não existe!");
 					}
@@ -124,16 +127,20 @@ public class Clans extends Utils implements CommandExecutor {
 						if(account.hasGroupClan(ClanGroup.RECRUIT)) {
 							clan = ClanManager.getInstance().get(account.getClanName());
 							if(clan == null) return true;
-							List<String> request = clan.getRequests();
+							List<String> invites = clan.getInvites();
 							Account accountTarget = AccountManager.getInstance().get(args[1]);
 							if(accountTarget != null) { 
-								if(!request.contains(accountTarget.getNickName())) { 
-									request.add(accountTarget.getNickName());
-									sendMessage(player, false, "§aVocê convidou §7" + accountTarget.getNickName() + " §apara entrar no clã!");
-									accountTarget.sendMessage(false, "§aVocê recebeu um convite para entrar no clã §7" + clan.getName() + "§a!");
-									clan.sendMessage(true, "O jogador " + accountTarget.getNickName() + " foi convidado para entrar no clã");
+								if(account != accountTarget) { 
+									if(!invites.contains(accountTarget.getNickName())) { 
+										invites.add(accountTarget.getNickName());
+										sendMessage(player, false, "§aVocê convidou §7" + accountTarget.getNickName() + " §apara entrar no clã!");
+										accountTarget.sendMessage(false, "§aVocê recebeu um convite para entrar no clã §7" + clan.getName() + "§a!");
+										clan.sendMessage(true, "O jogador " + accountTarget.getNickName() + " foi convidado para entrar no clã");
+									} else { 
+										sendMessage(player, false, "§cEste jogador já recebeu um convite para entrar no clã!");
+									}
 								} else { 
-									sendMessage(player, false, "§cEste jogador já recebeu um convite para entrar no clã!");
+									sendMessage(player, false, "§cO jogador não pode ser você mesmo!");
 								}
 							} else { 
 								sendMessage(player, false, "§cEste jogador não possui contas em nosso banco de dados!");
@@ -194,6 +201,137 @@ public class Clans extends Utils implements CommandExecutor {
 					} else { 
 						sendMessage(player, false, "§cVocê não está em um clã!");
 					}
+				} else if(args[0].equalsIgnoreCase("promover")) { 
+					if(account.hasClan()) {
+						if(account.hasGroupClan(ClanGroup.LEADDER)) {
+							clan = ClanManager.getInstance().get(account.getClanName());
+							if(clan == null) return true;
+							Account accountTarget = AccountManager.getInstance().get(args[1]);
+							if(accountTarget != null) { 
+								if(account != accountTarget) { 
+									if(clan.hasMember(accountTarget.getNickName())) { 
+										if(accountTarget.hasGroupClan(ClanGroup.MEMBER)) {
+											boolean has = false;
+											List<String> members = clan.getMembers();
+											Iterator<String> iterator = clan.getMembers().iterator();
+											while(iterator.hasNext()) { 
+												String[] split = iterator.next().split(";");
+												if(split[0].equalsIgnoreCase(accountTarget.getNickName()) && split[1].equalsIgnoreCase(ClanGroup.MEMBER.toString())) { 
+													iterator.remove();
+													has = true;
+												}
+											}
+											if(has) { 
+												members.add(accountTarget.getNickName() + ";" + ClanGroup.RECRUIT.toString());
+												clan.setMembers(members);
+												clan.sendMessage(true, "O jogador " + player.getName() + " foi promovido");
+											} else { 
+												sendMessage(player, false, "§cEste jogador já está no cargo máximo!");
+												Main.debug("Ocorreu um erro na promoção de " + accountTarget.getNickName() + " de cargo");
+											}
+										}
+									} else { 
+										sendMessage(player, false, "§cEste jogador não faz parte do clã!");
+									}
+								} else { 
+									sendMessage(player, false, "§cO jogador não pode ser você mesmo!");
+								}
+							} else { 
+								sendMessage(player, false, "§cEste jogador não possui contas em nosso banco de dados!");
+							}
+						} else { 
+							sendMessage(player, false, "§cSomente o líder pode promover jogadores!");
+						}
+					} else { 
+						sendMessage(player, false, "§cVocê não está em um clã!");
+					}
+				} else if(args[0].equalsIgnoreCase("rebaixar")) { 
+					if(account.hasClan()) {
+						if(account.hasGroupClan(ClanGroup.LEADDER)) {
+							clan = ClanManager.getInstance().get(account.getClanName());
+							if(clan == null) return true;
+							Account accountTarget = AccountManager.getInstance().get(args[1]);
+							if(accountTarget != null) { 
+								if(account != accountTarget) { 
+									if(clan.hasMember(accountTarget.getNickName())) { 
+										if(accountTarget.hasGroupClan(ClanGroup.RECRUIT)) {
+											boolean has = false;
+											List<String> members = clan.getMembers();
+											Iterator<String> iterator = members.iterator();
+											while(iterator.hasNext()) { 
+												String[] split = iterator.next().split(";");
+												if(split[0].equalsIgnoreCase(accountTarget.getNickName()) && split[1].equalsIgnoreCase(ClanGroup.RECRUIT.toString())) { 
+													iterator.remove();
+													has = true;
+												}
+											}
+											if(has) { 
+												members.add(accountTarget.getNickName() + ";" + ClanGroup.MEMBER.toString());
+												clan.setMembers(members);
+												clan.sendMessage(true, "O jogador " + player.getName() + " foi rebaixado");
+											} else { 
+												sendMessage(player, has, "§cEste jogador já está no cargo mínimo!");
+												Main.debug("Ocorreu um erro no rebaixamento de " + accountTarget.getNickName() + " de cargo");
+											}
+										}
+									} else { 
+										sendMessage(player, false, "§cEste jogador não faz parte do clã!");
+									}
+								} else { 
+									sendMessage(player, false, "§cO jogador não pode ser você mesmo!");
+								}
+							} else { 
+								sendMessage(player, false, "§cEste jogador não possui contas em nosso banco de dados!");
+							}
+						} else { 
+							sendMessage(player, false, "§cSomente o líder pode promover jogadores!");
+						}
+					} else { 
+						sendMessage(player, false, "§cVocê não está em um clã!");
+					}
+				} else if(args[0].equalsIgnoreCase("expulsar")) { 
+					if(account.hasClan()) {
+						if(account.hasGroupClan(ClanGroup.LEADDER)) {
+							clan = ClanManager.getInstance().get(account.getClanName());
+							if(clan == null) return true;
+							Account accountTarget = AccountManager.getInstance().get(args[1]);
+							if(accountTarget != null) { 
+								if(account != accountTarget) { 
+									if(clan.hasMember(accountTarget.getNickName())) { 
+										boolean has = false;
+										List<String> members = clan.getMembers();
+										Iterator<String> iterator =  clan.getMembers().iterator();
+										while(iterator.hasNext()) { 
+											String[] split = iterator.next().split(";");
+											if(split[0].equalsIgnoreCase(accountTarget.getNickName())) { 
+												iterator.remove();
+												has = true;
+											}
+										}
+										if(has) { 
+											accountTarget.setClanName("NRE");
+											accountTarget.updatePrefix();
+											clan.setMembers(members);
+											clan.sendMessage(true, "O jogador " + player.getName() + " foi expulso do clã");
+											accountTarget.sendMessage(true, "§cVocê foi expulso do clã!");
+										} else { 
+											Main.debug("Ocorreu um erro no rebaixamento de " + accountTarget.getNickName() + " de cargo");
+										}
+									} else { 
+										sendMessage(player, false, "§cEste jogador não faz parte do clã!");
+									}
+								} else { 
+									sendMessage(player, false, "§cO jogador não pode ser você mesmo!");
+								}
+							} else { 
+								sendMessage(player, false, "§cEste jogador não possui contas em nosso banco de dados!");
+							}
+						} else { 
+							sendMessage(player, false, "§cSomente o líder pode promover jogadores!");
+						}
+					} else {
+						sendMessage(player, false, "§cVocê não está em um clã!");
+					}
 				}
 				return true;
 			} else if(args.length == 3) { 
@@ -230,10 +368,10 @@ public class Clans extends Utils implements CommandExecutor {
 				} else if(args[0].equalsIgnoreCase("convite")) { 
 					clan = ClanManager.getInstance().get(args[2]);
 					if(clan != null) { 
-						List<String> requests = clan.getRequests();
+						List<String> invites = clan.getInvites();
 						if(args[1].equalsIgnoreCase("aceitar")) { 
-							if(requests.contains(player.getName())) { 
-								requests.remove(player.getName());
+							if(invites.contains(player.getName())) { 
+								invites.remove(player.getName());
 								clan.sendMessage(true, player.getName() + " entrou para o clã");
 								List<String> members = clan.getMembers();
 								members.add(player.getName() + ";" + ClanGroup.MEMBER.toString());
@@ -245,8 +383,8 @@ public class Clans extends Utils implements CommandExecutor {
 								sendMessage(player, false, "§cVocê não recebeu convite para entrar nesse clã!");
 							}
 						} else if(args[1].equalsIgnoreCase("rejeitar")) { 
-							if(requests.contains(player.getName())) { 
-								requests.remove(player.getName());
+							if(invites.contains(player.getName())) { 
+								invites.remove(player.getName());
 								sendMessage(player, false, "§cVocê rejeitou o convite para entrar no clã §7" + clan.getName() + "§a!");
 							} else { 
 								sendMessage(player, false, "§cVocê não recebeu convite para entrar nesse clã!");
@@ -262,28 +400,32 @@ public class Clans extends Utils implements CommandExecutor {
 							if(clan == null) return true;
 							List<String> enemies = clan.getEnemies();
 							if(ClanManager.getInstance().get(args[2]) != null) { 
-								if(args[1].equalsIgnoreCase("add")) { 
-									if(!enemies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
-										enemies.add(ClanManager.getInstance().get(args[2]).getName());
-										clan.setEnemies(enemies);
-										List<String> enemiesTarget = ClanManager.getInstance().get(args[2]).getEnemies();
-										enemiesTarget.add(clan.getName());
-										ClanManager.getInstance().get(args[2]).setEnemies(enemiesTarget);
-										sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §aagora é inimigo!");
+								if(clan != ClanManager.getInstance().get(args[2])) { 
+									if(args[1].equalsIgnoreCase("add")) { 
+										if(!enemies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
+											enemies.add(ClanManager.getInstance().get(args[2]).getName());
+											clan.setEnemies(enemies);
+											List<String> enemiesTarget = ClanManager.getInstance().get(args[2]).getEnemies();
+											enemiesTarget.add(clan.getName());
+											ClanManager.getInstance().get(args[2]).setEnemies(enemiesTarget);
+											sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §aagora é inimigo!");
+										} else { 
+											sendMessage(player, false, "§cEste clã já é inimigo!");
+										}
 									} else { 
-										sendMessage(player, false, "§cEste clã já é inimigo!");
+										if(enemies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
+											enemies.remove(ClanManager.getInstance().get(args[2]).getName());
+											clan.setEnemies(enemies);
+											List<String> enemiesTarget = ClanManager.getInstance().get(args[2]).getEnemies();
+											enemiesTarget.remove(clan.getName());
+											ClanManager.getInstance().get(args[2]).setEnemies(enemiesTarget);
+											sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §anão é mais inimigo!");
+										} else { 
+											sendMessage(player, false, "§cEste clã não é inimigo!");
+										}
 									}
 								} else { 
-									if(enemies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
-										enemies.remove(ClanManager.getInstance().get(args[2]).getName());
-										clan.setEnemies(enemies);
-										List<String> enemiesTarget = ClanManager.getInstance().get(args[2]).getEnemies();
-										enemiesTarget.remove(clan.getName());
-										ClanManager.getInstance().get(args[2]).setEnemies(enemiesTarget);
-										sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §anão é mais inimigo!");
-									} else { 
-										sendMessage(player, false, "§cEste clã não é inimigo!");
-									}
+									sendMessage(player, false, "§cO clã deve ser diferente do seu!");
 								}
 							} else { 
 								sendMessage(player, false, "§cEste clã não existe!");
@@ -301,28 +443,32 @@ public class Clans extends Utils implements CommandExecutor {
 							if(clan == null) return true;
 							List<String> allies = clan.getAllies();
 							if(ClanManager.getInstance().get(args[2]) != null) { 
-								if(args[1].equalsIgnoreCase("add")) { 
-									if(!allies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
-										allies.add(ClanManager.getInstance().get(args[2]).getName());
-										clan.setAllies(allies);
-										List<String> alliesTarget = ClanManager.getInstance().get(args[2]).getAllies();
-										alliesTarget.add(clan.getName());
-										ClanManager.getInstance().get(args[2]).setEnemies(alliesTarget);
-										sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §aagora é alíado!");
+								if(clan != ClanManager.getInstance().get(args[2])) { 
+									if(args[1].equalsIgnoreCase("add")) { 
+										if(!allies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
+											allies.add(ClanManager.getInstance().get(args[2]).getName());
+											clan.setAllies(allies);
+											List<String> alliesTarget = ClanManager.getInstance().get(args[2]).getAllies();
+											alliesTarget.add(clan.getName());
+											ClanManager.getInstance().get(args[2]).setEnemies(alliesTarget);
+											sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §aagora é alíado!");
+										} else { 
+											sendMessage(player, false, "§cEste clã já é alíado!");
+										}
 									} else { 
-										sendMessage(player, false, "§cEste clã já é alíado!");
+										if(allies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
+											allies.remove(ClanManager.getInstance().get(args[2]).getName());
+											clan.setAllies(allies);
+											List<String> alliesTarget = ClanManager.getInstance().get(args[2]).getAllies();
+											alliesTarget.remove(clan.getName());
+											ClanManager.getInstance().get(args[2]).setAllies(alliesTarget);
+											sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §anão é mais alíado!");
+										} else { 
+											sendMessage(player, false, "§cEste clã não é alíado!");
+										}
 									}
 								} else { 
-									if(allies.contains(ClanManager.getInstance().get(args[2]).getName())) { 
-										allies.remove(ClanManager.getInstance().get(args[2]).getName());
-										clan.setAllies(allies);
-										List<String> alliesTarget = ClanManager.getInstance().get(args[2]).getAllies();
-										alliesTarget.remove(clan.getName());
-										ClanManager.getInstance().get(args[2]).setAllies(alliesTarget);
-										sendMessage(player, false, "§aClã §7" + ClanManager.getInstance().get(args[2]).getName() + " §anão é mais alíado!");
-									} else { 
-										sendMessage(player, false, "§cEste clã não é alíado!");
-									}
+									sendMessage(player, false, "§cO clã deve ser diferente do seu!");
 								}
 							} else { 
 								sendMessage(player, false, "§cEste clã não existe!");

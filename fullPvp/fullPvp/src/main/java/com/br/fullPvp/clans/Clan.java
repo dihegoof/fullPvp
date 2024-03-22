@@ -28,7 +28,6 @@ public class Clan {
 	boolean pvp;
 	
 	ClanStats status;
-	List<String> requests;
 
 	public Clan(String name, String tag, String leadder) {
 		this.name = name;
@@ -44,7 +43,6 @@ public class Clan {
 		this.createdIn = System.currentTimeMillis();
 		this.pvp = false;
 		this.status = new ClanStats(name, 0.0D, 0.0D, 0.0D);
-		this.requests = new ArrayList<>();
 	}
 	
 	public void save() { 
@@ -53,17 +51,17 @@ public class Clan {
 			if(exists()) { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.CLAN_UPDATE.getQuery());
 				stmt.setString(1, getTag());
-				stmt.setString(2, getLeadder());
-				stmt.setString(3, getMotto());
-				stmt.setString(4, getMembers().isEmpty() ? "null" : getMembers().toString().replace("[", "").replace("]", ""));
-				stmt.setString(5, getClimbed().isEmpty() ? "null" : getClimbed().toString().replace("[", "").replace("]", ""));
-				stmt.setString(6, getInvites().isEmpty() ? "null" : getInvites().toString().replace("[", "").replace("]", ""));
-				stmt.setString(7, getAllies().isEmpty() ? "null" : getAllies().toString().replace("[", "").replace("]", ""));
-				stmt.setString(8, getEnemies().isEmpty() ? "null" : getEnemies().toString().replace("[", "").replace("]", ""));
-				stmt.setDouble(9, getReal());
-				stmt.setLong(10, getCreatedIn());
-				stmt.setBoolean(11, isPvp());
-				stmt.setString(12, getName());
+				stmt.setString(2, getMotto());
+				stmt.setString(3, getMembers().isEmpty() ? "null" : getMembers().toString().replace("[", "").replace("]", ""));
+				Main.debug("Members > " + getMembers().toString());
+				stmt.setString(4, getClimbed().isEmpty() ? "null" : getClimbed().toString().replace("[", "").replace("]", ""));
+				stmt.setString(5, getInvites().isEmpty() ? "null" : getInvites().toString().replace("[", "").replace("]", ""));
+				stmt.setString(6, getAllies().isEmpty() ? "null" : getAllies().toString().replace("[", "").replace("]", ""));
+				stmt.setString(7, getEnemies().isEmpty() ? "null" : getEnemies().toString().replace("[", "").replace("]", ""));
+				stmt.setDouble(8, getReal());
+				stmt.setLong(9, getCreatedIn());
+				stmt.setBoolean(10, isPvp());
+				stmt.setString(11, getName());
 			} else { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.CLAN_INSERT.getQuery());
 				stmt.setString(1, getName());
@@ -132,15 +130,19 @@ public class Clan {
 		return members;
 	}
 	
-	public void sendMessage(boolean skipLine, String... messages) {
+	public int getMembersOnline() { 
+		int amount = 0;
 		for(Account a : getAccountMembers()) { 
 			if(a.isOnline()) { 
-				if(skipLine) 
-					a.getPlayer().sendMessage("");
-				a.getPlayer().sendMessage(messages);
-				if(skipLine) 
-					a.getPlayer().sendMessage("");
+				amount++;
 			}
+		}
+		return amount;
+	}
+	
+	public void sendMessage(boolean skipLine, String messages) {
+		for(Account a : getAccountMembers()) { 
+			a.sendMessage(skipLine, "§7[" + messages + "]");
 		}
 	}
 	
@@ -161,5 +163,9 @@ public class Clan {
 		if(typeCoin.equals(TypeCoin.REAL)) { 
 			setReal(getReal() + amount);
 		}
+	}
+
+	public boolean hasMember(String name) {
+		return AccountManager.getInstance().get(name).getClanName().equals(getName());
 	}
 }

@@ -1,5 +1,6 @@
 package com.br.fullPvp.inventorys.listener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -14,7 +15,12 @@ import com.br.fullPvp.accounts.Account;
 import com.br.fullPvp.accounts.AccountManager;
 import com.br.fullPvp.accounts.Permissions;
 import com.br.fullPvp.accounts.TypeCoin;
+import com.br.fullPvp.clans.Clan;
+import com.br.fullPvp.clans.ClanGroup;
+import com.br.fullPvp.clans.ClanManager;
 import com.br.fullPvp.inventorys.AccountInventory;
+import com.br.fullPvp.inventorys.ClanInventory;
+import com.br.fullPvp.inventorys.ClanInventory.TypeInventoryClan;
 import com.br.fullPvp.inventorys.TagInventory;
 import com.br.fullPvp.inventorys.TagInventory.TypeInventoryTag;
 import com.br.fullPvp.inventorys.WarpInventory;
@@ -262,6 +268,181 @@ public class InventoryListener extends Utils implements Listener {
 					sendMessage(player, false, "§cEsta tag encontra-se com problemas, contacte um administrador!");
 				}
 				player.closeInventory();
+			}
+			return;
+		} else if(event.getInventory().getTitle().equals("Seu clã") ||  event.getInventory().getTitle().startsWith("Clã ")) {
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Clan clan = ClanManager.getInstance().get(event.getInventory().getTitle().equals("Seu clã") ? account.getClanName() : event.getInventory().getTitle().replace("Clã ", ""));
+			if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aMembros")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.MEMBERS, account, clan, 1);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aStatus")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.STATUS, account, clan, 1);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aConvites")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.REQUESTS, account, clan, 1);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aAlíados")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.ALLIES, account, clan, 1);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aÍnimigos")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.ENEMIES, account, clan, 1);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aEscalação")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.SCALATION, account, clan, 1);
+			}
+			return;
+		} else if(event.getInventory().getTitle().equals("Seus alíados")) { 
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Clan clan = ClanManager.getInstance().get(account.getClanName());
+			if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§aPágina ") || event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§cPágina ")) { 
+				int pageNow = 0;
+				if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§a")) { 
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§aPágina ", ""));
+				} else {
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§cPágina ", ""));
+				}
+				ClanInventory.getInstance().create(player, TypeInventoryClan.ALLIES, account, clan, pageNow);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
+			}
+			return;
+		} else if(event.getInventory().getTitle().equals("Seus inimigos")) { 
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Clan clan = ClanManager.getInstance().get(account.getClanName());
+			if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§aPágina ") || event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§cPágina ")) { 
+				int pageNow = 0;
+				if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§a")) { 
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§aPágina ", ""));
+				} else {
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§cPágina ", ""));
+				}
+				ClanInventory.getInstance().create(player, TypeInventoryClan.ENEMIES, account, clan, pageNow);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
+			}
+			return;
+		} else if(event.getInventory().getTitle().equals("Membros do seu clã") ||  event.getInventory().getTitle().startsWith("Membros do clã ")) {
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Clan clan = ClanManager.getInstance().get(event.getInventory().getTitle().equals("Membros do seu clã") ? account.getClanName() : event.getInventory().getTitle().replace("Membros do clã ", ""));
+			if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§aPágina ") || event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§cPágina ")) { 
+				int pageNow = 0;
+				if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§a")) { 
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§aPágina ", ""));
+				} else {
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§cPágina ", ""));
+				}
+				ClanInventory.getInstance().create(player, TypeInventoryClan.MEMBERS, account, clan, pageNow);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
+			}
+		} else if(event.getInventory().getTitle().equals("Status do seu clã") ||  event.getInventory().getTitle().startsWith("Status do clã ")) {
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Clan clan = ClanManager.getInstance().get(event.getInventory().getTitle().equals("Status do seu clã") ? account.getClanName() : event.getInventory().getTitle().replace("Status do clã ", ""));
+			if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
+			}
+			return;
+		} else if(event.getInventory().getTitle().equals("Convites do seu clã")) { 
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Clan clan = ClanManager.getInstance().get(account.getClanName());
+			if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§aPágina ") || event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§cPágina ")) { 
+				int pageNow = 0;
+				if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§a")) { 
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§aPágina ", ""));
+				} else {
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§cPágina ", ""));
+				}
+				ClanInventory.getInstance().create(player, TypeInventoryClan.REQUESTS, account, clan, pageNow);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
+			} else {
+				if(event.isRightClick()) { 
+					if(account.hasGroupClan(ClanGroup.RECRUIT)) { 
+						List<String> list = clan.getInvites();
+						if(list.contains(event.getCurrentItem().getItemMeta().getDisplayName().replace("§a", ""))) { 
+							list.remove(event.getCurrentItem().getItemMeta().getDisplayName().replace("§a", ""));
+							clan.setInvites(list);
+						} else { 
+							sendMessage(player, false, "§cEste convite expirou!");
+						}
+					} else { 
+						sendMessage(player, false, "§cVocê precisa ser ao menos recruta para cancelar um convite!");
+					}
+					player.closeInventory();
+					ClanInventory.getInstance().create(player, TypeInventoryClan.REQUESTS, account, clan, 1);
+				}
+			}
+			return;
+		} else if(event.getInventory().getTitle().equals("Escalação")) { 
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Clan clan = ClanManager.getInstance().get(account.getClanName());
+			if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§aPágina ") || event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§cPágina ")) { 
+				int pageNow = 0;
+				if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§a")) { 
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§aPágina ", ""));
+				} else {
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§cPágina ", ""));
+				}
+				ClanInventory.getInstance().create(player, TypeInventoryClan.SCALATION, account, clan, pageNow);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				ClanInventory.getInstance().create(player, TypeInventoryClan.INFO, account, clan, 1);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cResetar escalação")) { 
+				if(account.hasGroupClan(ClanGroup.LEADDER)) { 
+					List<String> climbed = clan.getClimbed();
+					if(climbed.size() > 0) { 
+						clan.setClimbed(new ArrayList<String>());
+					} else { 
+						sendMessage(player, false, "§cA escalação não está formada!");
+					}
+					ClanInventory.getInstance().create(player, TypeInventoryClan.SCALATION, account, clan, 1);
+				} else { 
+					player.closeInventory();
+					sendMessage(player, false, "§cVocê precisa ser líder do clã para formar a escalação!");
+				}
+			} else if(event.getCurrentItem().getType() == Material.SKULL_ITEM && event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§e")) { 
+				if(account.hasGroupClan(ClanGroup.LEADDER)) { 
+					Account accountTarget = AccountManager.getInstance().get(event.getCurrentItem().getItemMeta().getDisplayName().replace("§e", ""));
+					if(accountTarget == null) return;
+					List<String> climbed = clan.getClimbed();
+					if(climbed.size() <= 5) { 
+						if(!climbed.contains(accountTarget.getNickName())) { 
+							climbed.add(accountTarget.getNickName());
+							clan.setClimbed(climbed);
+						} else { 
+							sendMessage(player, false, "§cEste jogador já está escalado!");
+						}
+					} else { 
+						sendMessage(player, false, "§cA escalação já está formada!");
+					}
+					ClanInventory.getInstance().create(player, TypeInventoryClan.SCALATION, account, clan, 1);
+				} else { 
+					player.closeInventory();
+					sendMessage(player, false, "§cVocê precisa ser líder do clã para formar a escalação!");
+				}
 			}
 			return;
 		}

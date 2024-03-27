@@ -179,6 +179,6 @@ public class Ranks extends Utils implements CommandExecutor {
 							  "§c/" + label + " req <add> <rank> <economia> <quantidade>",
 							  "§c/" + label + " req <remover> <rank> <economia>",
 							  "§c/" + label + " definirprefixo <rank> <prefixo>",
-							  "§c/" + label + " definirconf <rank> <padrao>");
+							  "§c/" + label + " definirconf <rank> padrao");
 	}
 }

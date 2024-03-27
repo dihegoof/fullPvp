@@ -53,7 +53,7 @@ public class TagManager {
 		}
 	}
 	
-	public void saveAllRanks() { 
+	public void saveAllTags() { 
 		for(Tag t : storageTags) {
 			t.save();
 		}

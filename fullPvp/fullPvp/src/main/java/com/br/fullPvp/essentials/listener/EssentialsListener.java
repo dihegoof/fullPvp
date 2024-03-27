@@ -62,6 +62,7 @@ public class EssentialsListener extends Utils implements Listener {
 		if(event.isCancelled()) return;
 		event.setCancelled(true);
 		int distance = 30;
+		if(AccountManager.getAdminShop().containsKey(player.getUniqueId())) return;
 		if(!ServerPreferencesManager.getServerPreference().isChatLocal()) { 
 			if(!account.hasPermission(Permissions.SAY_CHAT_OFF.getPermission())) { 
 				sendMessage(player, false, "§cO chat local está desativado!");

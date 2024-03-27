@@ -61,5 +61,4 @@ public class Tag {
 			Main.debug("Ocorreu um erro ao deletar tag " + getName() + "!", e.getLocalizedMessage());
 		}
 	}
-
 }

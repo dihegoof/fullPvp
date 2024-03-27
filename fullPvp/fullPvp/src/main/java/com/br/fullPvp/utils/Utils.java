@@ -50,6 +50,10 @@ public class Utils {
 		 return TypeCoin.REPUTACAO.getSymbol() + new DecimalFormat("###.#").format(value);
 	}
 	
+	public String formatPercent(double value) { 
+		return "%" + String.valueOf(value).replace(".0", "");
+	}
+	
 	public void sendMessage(CommandSender player, boolean skipLine, String... messages) {
 		if(skipLine)
 			player.sendMessage("");

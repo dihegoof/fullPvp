@@ -40,7 +40,7 @@ public class Tags extends Utils implements CommandExecutor {
 					return true;
 				}
 			}
-			if(args[0].equalsIgnoreCase("ajuda")) { 
+			if(args[0].equalsIgnoreCase("ajuda") || args[0].equalsIgnoreCase("help")) { 
 				sintax(sender, label);
 			}
 			return true;
@@ -165,7 +165,7 @@ public class Tags extends Utils implements CommandExecutor {
 	private void sintax(CommandSender sender, String label) { 
 		sintaxCommand(sender, "§c/" + label + " <criar, deletar, info> <nome>", 
 							  "§c/" + label + " definirprefixo <tag> <prefixo>",
-							  "§c/" + label + " definirconf <tag> <gratis>",
-							  "§c/" + label + " definirconf <tag> <gratis> <permissão>");
+							  "§c/" + label + " definirconf <tag> gratis",
+							  "§c/" + label + " definirconf <tag> gratis <permissão>");
 	}
 }

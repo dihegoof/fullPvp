@@ -39,7 +39,7 @@ public class Clans extends Utils implements CommandExecutor {
 				}
 				return true;
 			} else if(args.length == 1) {
-				if(args[0].equalsIgnoreCase("ajuda")) { 
+				if(args[0].equalsIgnoreCase("ajuda") || args[0].equalsIgnoreCase("help")) { 
 					sintax(account, label);
 				} else if(args[0].equalsIgnoreCase("sair")) { 
 					if(account.hasClan()) {
@@ -498,7 +498,7 @@ public class Clans extends Utils implements CommandExecutor {
 			if(account.hasGroupClan(ClanGroup.LEADDER)) { 
 				sintaxCommand(account.getPlayer(), 
 						  "§c/" + label + " <promover, rebaixar, expulsar> <jogador>",
-						  "§c/" + label + " definirconf <pvp>",
+						  "§c/" + label + " definirconf pvp",
 						  "§c/" + label + " alterartag <nova tag>",
 						  "§c/" + label + " definirlema <mensagem>",
 						  "§c/" + label + " inimigo <add, remover> <nome>",

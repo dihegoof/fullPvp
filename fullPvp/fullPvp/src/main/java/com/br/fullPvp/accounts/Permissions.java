@@ -20,6 +20,8 @@ public enum Permissions {
 	MANAGE_RANKS("rank.manager", "Ver e gerenciar informações dos ranks"),
 	MANAGE_LINKS("links.manager", "Ver e gerenciar links de midia"),
 	MANAGE_WARP("warps.manager", "Ver e gerenciar warps"),
+	MANAGE_SHOP("shop.manager", "Ver e gerenciar itens e sessões da loja"),
+	MANAGE_KIT("kit.manager", "Ver e gerenciar kits"),
 	VANTAGE_WARP("warps.vantage", "Tempo de teleporte reduzido"),
 	SPAWN_VIP("spawn.vip", "Acesso ao spawn vip"),
 	MANAGE_TAG("tags.manager", "Ver e gerenciar informações das tags"), 

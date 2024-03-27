@@ -10,10 +10,18 @@ import java.util.UUID;
 
 import com.br.fullPvp.Main;
 import com.br.fullPvp.mysql.SqlQuerys;
+import com.br.fullPvp.shop.item.Item;
+import com.br.fullPvp.utils.Storage;
 
 import lombok.Getter;
 
 public class AccountManager {
+	
+	public enum Action { 
+		
+		SETTING_DESCOUNT, SETTING_PRICE;
+		
+	}
 	
 	@Getter
 	static AccountManager instance = new AccountManager();
@@ -21,6 +29,8 @@ public class AccountManager {
 	static List<Account> storageAccounts = new ArrayList<>();
 	@Getter
 	static HashMap<UUID, String> lastWarp = new HashMap<>();
+	@Getter
+	static Storage<UUID, String, Action> adminShop = new Storage<>();
 	
 	public void add(Account account) { 
 		if(!storageAccounts.contains(account)) { 

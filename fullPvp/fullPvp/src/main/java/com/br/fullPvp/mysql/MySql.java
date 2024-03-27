@@ -61,7 +61,13 @@ public class MySql {
 				SqlQuerys.TAG_CREATE_TABLE.getQuery(),
 				SqlQuerys.PREFERENCES_SERVER_CREATE_TABLE.getQuery(),
 				SqlQuerys.CLAN_CREATE_TABLE.getQuery(),
-				SqlQuerys.CLAN_STATUS_CREATE_TABLE.getQuery());
+				SqlQuerys.CLAN_STATUS_CREATE_TABLE.getQuery(),
+				SqlQuerys.SESSION_CREATE_TABLE.getQuery(),
+				SqlQuerys.ITEM_CREATE_TABLE.getQuery(),
+				SqlQuerys.SHOPPING_CART_CREATE_TABLE.getQuery(),
+				SqlQuerys.KIT_CREATE_TABLE.getQuery(),
+				SqlQuerys.PLAYER_KIT_CREATE_TABLE.getQuery()
+				);
 		try {
 			PreparedStatement stmt = null;
 			for(String names : querys) { 

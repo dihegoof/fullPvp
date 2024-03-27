@@ -32,3 +32,5 @@ commands:
      aliases: [gm]
    clans:
      aliases: [clan, cla]
+   shop:
+     aliases: [loja]

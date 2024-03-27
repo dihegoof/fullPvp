@@ -75,6 +75,41 @@ public enum SqlQuerys {
 	CLAN_STATUS_INSERT("INSERT INTO `fullpvp_clans_status` (`clanname`,`kills`,`deaths`,`killstreak`) VALUES (?,?,?,?);"),
 	CLAN_STATUS_UPDATE("UPDATE `fullpvp_clans_status` SET `kills`=?,`deaths`=?,`killstreak`=? WHERE `clanname`=?"),
 	CLAN_STATUS_DELETE("DELETE FROM `fullpvp_clans_status` WHERE `clanname`=?"),
+	
+	SESSION_CREATE_TABLE("CREATE TABLE IF NOT EXISTS `fullpvp_shop_sessions` (`name` VARCHAR(32), `descount` DOUBLE, `icon` VARCHAR(16), `promo` BOOLEAN);"),
+	SESSION_SELECT("SELECT * FROM `fullpvp_shop_sessions` WHERE `name`=?"),
+	SESSION_SELECT_ALL("SELECT * FROM `fullpvp_shop_sessions`;"),
+	SESSION_INSERT("INSERT INTO `fullpvp_shop_sessions` (`name`,`descount`,`icon`,`promo`) VALUES (?,?,?,?);"),
+	SESSION_UPDATE("UPDATE `fullpvp_shop_sessions` SET `descount`=?,`icon`=?,`promo`=? WHERE `name`=?"),
+	SESSION_DELETE("DELETE FROM `fullpvp_shop_sessions` WHERE `name`=?"),
+	
+	ITEM_CREATE_TABLE("CREATE TABLE IF NOT EXISTS `fullpvp_shop_itens` (`uniqueid` VARCHAR(32), `item` VARCHAR(8000), `session` VARCHAR(32), `price` DOUBLE, `descount` DOUBLE, `promo` BOOLEAN);"),
+	ITEM_SELECT("SELECT * FROM `fullpvp_shop_itens` WHERE `uniqueid`=?"),
+	ITEM_SELECT_ALL("SELECT * FROM `fullpvp_shop_itens`;"),
+	ITEM_INSERT("INSERT INTO `fullpvp_shop_itens` (`uniqueid`,`item`,`session`,`price`,`descount`,`promo`) VALUES (?,?,?,?,?,?);"),
+	ITEM_UPDATE("UPDATE `fullpvp_shop_itens` SET `session`=?,`price`=?,`descount`=?,`promo`=? WHERE `uniqueid`=?"),
+	ITEM_DELETE("DELETE FROM `fullpvp_shop_itens` WHERE `uniqueid`=?"),
+	
+	SHOPPING_CART_CREATE_TABLE("CREATE TABLE IF NOT EXISTS `fullpvp_shopping_cart` (`uniqueid` VARCHAR(64), `cart` VARCHAR(8000));"),
+	SHOPPING_CART_SELECT("SELECT * FROM `fullpvp_shopping_cart` WHERE `uniqueid`=?"),
+	SHOPPING_CART_SELECT_ALL("SELECT * FROM `fullpvp_shopping_cart`;"),
+	SHOPPING_CART_INSERT("INSERT INTO `fullpvp_shopping_cart` (`uniqueid`,`cart`) VALUES (?,?);"),
+	SHOPPING_CART_UPDATE("UPDATE `fullpvp_shopping_cart` SET `cart`=? WHERE `uniqueid`=?"),
+	SHOPPING_CART_DELETE("DELETE FROM `fullpvp_shopping_cart` WHERE `uniqueid`=?"),
+	
+	KIT_CREATE_TABLE("CREATE TABLE IF NOT EXISTS `fullpvp_kits` (`name` VARCHAR(32), `permission` VARCHAR(32), `timecustom` VARCHAR(32), `icon` VARCHAR(16), `delay` VARCHAR(16), `free` BOOLEAN, `itens` VARCHAR(8000));"),
+	KIT_SELECT("SELECT * FROM `fullpvp_kits` WHERE `name`=?"),
+	KIT_SELECT_ALL("SELECT * FROM `fullpvp_kits`;"),
+	KIT_INSERT("INSERT INTO `fullpvp_kits` (`name`,`permission`,`timecustom`,`icon`,`delay`,`free`,`itens`) VALUES (?,?,?,?,?,?,?);"),
+	KIT_UPDATE("UPDATE `fullpvp_kits` SET `permission`=?,`timecustom`=?,`icon`=?,`delay`=?,`free`=?,`itens`=? WHERE `name`=?"),
+	KIT_DELETE("DELETE FROM `fullpvp_kits` WHERE `name`=?"),
+	
+	PLAYER_KIT_CREATE_TABLE("CREATE TABLE IF NOT EXISTS `fullpvp_player_kits` (`uniqueid` VARCHAR(64), `kitcollected` VARCHAR(8000));"),
+	PLAYER_KIT_SELECT("SELECT * FROM `fullpvp_player_kits` WHERE `uniqueid`=?"),
+	PLAYER_KIT_SELECT_ALL("SELECT * FROM `fullpvp_player_kits`;"),
+	PLAYER_KIT_INSERT("INSERT INTO `fullpvp_player_kits` (`uniqueid`,`kitcollected`) VALUES (?,?);"),
+	PLAYER_KIT_UPDATE("UPDATE `fullpvp_player_kits` SET `kitcollected`=? WHERE `uniqueid`=?"),
+	PLAYER_KIT_DELETE("DELETE FROM `fullpvp_player_kits` WHERE `uniqueid`=?"),
 	;
 	
 	String query;

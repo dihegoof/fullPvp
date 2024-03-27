@@ -13,6 +13,9 @@ import com.br.fullPvp.groups.listener.ServerTimerEvent;
 import com.br.fullPvp.links.LinkManager;
 import com.br.fullPvp.mysql.MySql;
 import com.br.fullPvp.ranks.RankManager;
+import com.br.fullPvp.shop.item.ItemManager;
+import com.br.fullPvp.shop.session.SessionManager;
+import com.br.fullPvp.shop.shoppingcart.ShoppingCartManager;
 import com.br.fullPvp.tags.TagManager;
 import com.br.fullPvp.utils.ClassGetter;
 import com.br.fullPvp.warps.WarpManager;
@@ -41,8 +44,8 @@ public class Main extends JavaPlugin {
 	static Plugin plugin = null;
 	@Getter
 	static boolean debug = true;
-	static String[] listeners = { "accounts.listener", "groups.listener", "inventorys.listener", "warps.listener", "essentials.listener" };
-	static String[] commands = { "accounts.commands", "groups.commands", "ranks.commands", "links.commands", "warps.commands", "tags.commands", "essentials.commands", "clans.commands" };
+	static String[] listeners = { "accounts.listener", "groups.listener", "inventorys.listener", "warps.listener", "essentials.listener", "chat" };
+	static String[] commands = { "accounts.commands", "groups.commands", "ranks.commands", "links.commands", "warps.commands", "tags.commands", "essentials.commands", "clans.commands", "shop.commands" };
 	@Getter
 	@Setter
 	static MySql mySql = null;
@@ -93,6 +96,9 @@ public class Main extends JavaPlugin {
 		TagManager.getInstance().loadAllTags();
 		ServerPreferencesManager.getInstance().loadPreferences();
 		ClanManager.getInstance().loadAllClans();
+		SessionManager.getInstance().loadAllSessions();
+		ItemManager.getInstance().loadAllItens();
+		ShoppingCartManager.getInstance().loadAllShoppingCart();
 	}
 	
 	private void startSaves() { 
@@ -101,8 +107,11 @@ public class Main extends JavaPlugin {
 		RankManager.getInstance().saveAllRanks();
 		LinkManager.getInstance().saveLinks();
 		WarpManager.getInstance().saveAllWarps();
-		TagManager.getInstance().saveAllRanks();
+		TagManager.getInstance().saveAllTags();
 		ServerPreferencesManager.getInstance().savePreferences();
 		ClanManager.getInstance().saveAllClans();
+		SessionManager.getInstance().saveAllSessions();
+		ItemManager.getInstance().saveAllItens();
+		ShoppingCartManager.getInstance().saveAllShoppingCart();
 	}
 }

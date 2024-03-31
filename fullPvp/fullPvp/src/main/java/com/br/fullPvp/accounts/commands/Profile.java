@@ -11,6 +11,7 @@ import com.br.fullPvp.accounts.Permissions;
 import com.br.fullPvp.accounts.TypeCoin;
 import com.br.fullPvp.groups.Group;
 import com.br.fullPvp.groups.GroupManager;
+import com.br.fullPvp.groups.PermissionsCase;
 import com.br.fullPvp.inventorys.AccountInventory;
 import com.br.fullPvp.inventorys.AccountInventory.TypeInventoryAccount;
 import com.br.fullPvp.utils.TimeManager;
@@ -84,6 +85,25 @@ public class Profile extends Utils implements CommandExecutor {
 				} else { 
 					sendMessage(sender, false, "§cEste grupo não existe!");
 				}
+			} else if(args[0].equalsIgnoreCase("perm")) {
+				Account accountTarget = AccountManager.getInstance().get(args[1]);
+				if(args[2].equalsIgnoreCase("lista")) { 
+					if(accountTarget != null) { 
+						StringBuilder list = new StringBuilder();
+						for(PermissionsCase p : accountTarget.getPermissions()) { 
+							list.append(
+									p.isPermanent() ? 
+											p.getPermission() + ", " : 
+											Long.valueOf(p.getTime()) < System.currentTimeMillis() ? 
+													p.getPermission() + "§8(§cexpirado§8)§7, " : 
+											p.getPermission() + 
+											"§8(" + compareTime(Long.valueOf(p.getTime())) + ")§7, ");
+						}
+						sendMessage(sender, true, "§aPermissões de §7" + accountTarget.getNickName() + "§a: §7"  + (list.length() <= 0 ? "§cNenhuma permissão encontrada!" : list.toString().substring(0, list.length() - 2)));
+					} else { 
+						sendMessage(sender, false, "§cEste jogador não possui contas em nosso banco de dados!");
+					}
+				}
 			}
 			return true;
 		} else if(args.length == 4) { 
@@ -120,6 +140,28 @@ public class Profile extends Utils implements CommandExecutor {
 					sendMessage(sender, false, "§cEste grupo não existe!");
 				}
 				return true;
+			} else if(args[0].equalsIgnoreCase("perm")) {
+				Account accountTarget = AccountManager.getInstance().get(args[2]);
+				if(accountTarget != null) { 
+					if(args[1].equalsIgnoreCase("add")) { 
+						if(!accountTarget.hasPermission(args[3])) { 
+							accountTarget.add(args[3], -1);
+							sendMessage(sender, false, "§aPermissão §7" + args[3] + " §aadicionada ao jogador §7" + accountTarget.getNickName() + " §apermanentemente!");
+						} else { 
+							sendMessage(sender, false, "§cEste jogador já possui esta permissão!");
+						}
+					} else if(args[1].equalsIgnoreCase("remover")) { 
+						if(accountTarget.hasPermission(args[3])) { 
+							accountTarget.remove(args[3]);
+							sendMessage(sender, false, "§aPermissão §7" + args[3] + " §aremovida do jogador §7" + accountTarget.getNickName() + "§a!");
+						} else { 
+							sendMessage(sender, false, "§cEste jogador não possui esta permissão!");
+						}
+					}
+				} else { 
+					sendMessage(sender, false, "§cEste jogador não possui contas em nosso banco de dados!");
+				}
+				return true;
 			}
 			TypeCoin typeCoin = null;
 			try {
@@ -150,13 +192,38 @@ public class Profile extends Utils implements CommandExecutor {
 				return true;
 			}
 			return true;
+		} else if(args.length == 5) { 
+			if(args[0].equalsIgnoreCase("perm")) {
+				Account accountTarget = AccountManager.getInstance().get(args[2]);
+				if(accountTarget != null) { 
+					if(args[1].equalsIgnoreCase("add")) { 
+						if(!accountTarget.hasPermission(args[3])) { 
+							if(isTime(args[4])) { 
+								accountTarget.add(args[3], TimeManager.getInstance().getTime(args[4]));
+							} else {
+								sendMessage(sender, false, "§cTempo inválido!");
+								return true;
+							}
+							sendMessage(sender, false, "§aPermissão §7" + args[3] + " §aadicionada ao jogador §7" + accountTarget.getNickName() + " §adurante §f" + compareTime(TimeManager.getInstance().getTime(args[4])) + "§a!");
+						} else { 
+							sendMessage(sender, false, "§cEste jogador já possui esta permissão!");
+						}
+					}
+				} else { 
+					sendMessage(sender, false, "§cEste jogador não possui contas em nosso banco de dados!");
+				}
+			}
+			return true;
 		}
 		return false;
 	}
 	
 	private void sintax(CommandSender sender, String label) { 
 		sintaxCommand(sender, "§c/" + label + " <jogador>", 
-							  "§c/" + label + " <real, cash, reputation> <add, remover> <jogador> <quantidade>",
+							  "§c/" + label + " <real, cash, reputacao> <add, remover> <jogador> <quantidade>",
+							  "§c/" + label + " perm <add, remover> <jogador> <permissão>",
+							  "§c/" + label + " perm <add> <jogador> <permissão> <tempo>",
+							  "§c/" + label + " perm <jogador> lista",
 							  "§c/" + label + " definir <grupo> <jogador> <tempo>");
 	}
 }

@@ -66,7 +66,8 @@ public class MySql {
 				SqlQuerys.ITEM_CREATE_TABLE.getQuery(),
 				SqlQuerys.SHOPPING_CART_CREATE_TABLE.getQuery(),
 				SqlQuerys.KIT_CREATE_TABLE.getQuery(),
-				SqlQuerys.PLAYER_KIT_CREATE_TABLE.getQuery()
+				SqlQuerys.PLAYER_KIT_CREATE_TABLE.getQuery(),
+				SqlQuerys.MINE_CREATE_TABLE.getQuery()
 				);
 		try {
 			PreparedStatement stmt = null;

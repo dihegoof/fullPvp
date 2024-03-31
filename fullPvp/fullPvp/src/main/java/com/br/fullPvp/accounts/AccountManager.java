@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.br.fullPvp.Main;
+import com.br.fullPvp.groups.PermissionsCase;
 import com.br.fullPvp.mysql.SqlQuerys;
-import com.br.fullPvp.shop.item.Item;
 import com.br.fullPvp.utils.Storage;
 
 import lombok.Getter;
@@ -65,15 +65,20 @@ public class AccountManager {
 			PreparedStatement stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.ACCOUNT_SELECT_ALL.getQuery());
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) { 
-				List<String> permissions = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("permissions").split(", "))) { 
-					permissions.add(names);
+				List<PermissionsCase> permissions = new ArrayList<>();
+				if(!rs.getString("permissions").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("permissions").split(", "))) { 
+						String[] split = names.split(";");
+						permissions.add(new PermissionsCase(split[0], Long.valueOf(split[1])));
+					}
 				}
 				List<String> tags = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("tags").split(", "))) { 
-					tags.add(names);
+				if(!rs.getString("tags").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("tags").split(", "))) { 
+						tags.add(names);
+					}
 				}
-				Account account = new Account(UUID.fromString(rs.getString("uniqueid")), rs.getString("nickname"), rs.getString("rankname"), rs.getString("groupname"), rs.getString("lastgroupname"), rs.getString("clanname"), rs.getString("address"), rs.getString("lastaddress"), rs.getString("tagusing"), rs.getLong("timegroup"), rs.getLong("firstlogin"), rs.getLong("lastsee"), rs.getDouble("real"), rs.getDouble("cash"), rs.getDouble("reputation"), false, (tags.get(0).equals("null") ? new ArrayList<String>() : tags), (permissions.get(0).equals("null") ? new ArrayList<String>() : permissions), null, null, null, null, null);
+				Account account = new Account(UUID.fromString(rs.getString("uniqueid")), rs.getString("nickname"), rs.getString("rankname"), rs.getString("groupname"), rs.getString("lastgroupname"), rs.getString("clanname"), rs.getString("address"), rs.getString("lastaddress"), rs.getString("tagusing"), rs.getLong("timegroup"), rs.getLong("firstlogin"), rs.getLong("lastsee"), rs.getDouble("real"), rs.getDouble("cash"), rs.getDouble("reputation"), false, permissions, tags, null, null, null, null, null);
 				account.loadStatus();
 				account.loadPreferences();
 				add(account);

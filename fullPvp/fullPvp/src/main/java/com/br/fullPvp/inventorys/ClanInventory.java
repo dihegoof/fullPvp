@@ -10,8 +10,8 @@ import org.bukkit.inventory.Inventory;
 
 import com.br.fullPvp.accounts.Account;
 import com.br.fullPvp.clans.Clan;
-import com.br.fullPvp.clans.ClanGroup;
 import com.br.fullPvp.clans.ClanManager;
+import com.br.fullPvp.clans.ClanMember;
 import com.br.fullPvp.utils.HeadLink;
 import com.br.fullPvp.utils.ItemBuilder;
 import com.br.fullPvp.utils.Utils;
@@ -167,9 +167,9 @@ public class ClanInventory extends Utils {
 			}
 		} else if(typeInventory.equals(TypeInventoryClan.MEMBERS)) { 
 			inventory = Bukkit.createInventory(player, 54, account.getClanName().equals(clan.getName()) ? "Membros do seu clã" : "Membros do clã " + clan.getName());
-			List<String> list = clan.getMembers();
+			List<ClanMember> list = clan.getMembers();
 			int start = (page > 1 ? (28 * page) - 28 : 0);
-			String[] member = null;
+			ClanMember member = null;
 			if(list.isEmpty()) { 
 				ib = new ItemBuilder(Material.STAINED_GLASS_PANE).setDurability(14).setName("§cNenhum membro");
 				ib.build(inventory, 22);
@@ -182,8 +182,8 @@ public class ClanInventory extends Utils {
 				}
 				if(inventory.getItem(x) != null) continue;
 				if(empty.contains(x)) continue;
-				member = list.get(start).split(";");
-				ib = new ItemBuilder(Material.SKULL_ITEM).setDurability(3).setName("§a" + member[0]).setDescription("§fCargo §7" + ClanGroup.valueOf(member[1]).getName()).setSkull(member[0]);
+				member = list.get(start);
+				ib = new ItemBuilder(Material.SKULL_ITEM).setDurability(3).setName("§a" + member.getName()).setDescription("§fCargo §7" + member.getClanGroup().getName(), "§fData de entrada §7" + formatData(member.getJoinIn())).setSkull(member.getName());
 				ib.build(inventory, x); 
 				start++;
 			}
@@ -265,8 +265,8 @@ public class ClanInventory extends Utils {
 				ib.build(inventory, x); 
 				start++;
 			}
-			String[] member = null;
-			List<String> listMembers = clan.getMembers();
+			ClanMember member = null;
+			List<ClanMember> listMembers = clan.getMembers();
 			for(int x = 0; x < inventory.getSize(); x++) { 
 				try {  
 					if(listMembers.get(start) == null) continue; 
@@ -276,9 +276,9 @@ public class ClanInventory extends Utils {
 				if(inventory.getItem(x) != null) continue;
 				if(empty.contains(x)) continue;
 				if(emptyAdd.contains(x)) continue;
-				if(list.contains(listMembers.get(start).split(";")[0])) continue;
-				member = listMembers.get(start).split(";");
-				ib = new ItemBuilder(Material.SKULL_ITEM).setDurability(3).setName("§e" + member[0]).setDescription("§fCargo §7" + ClanGroup.valueOf(member[1]).getName()).setSkull(member[0]);
+				if(list.contains(listMembers.get(start).getName())) continue;
+				member = listMembers.get(start);
+				ib = new ItemBuilder(Material.SKULL_ITEM).setDurability(3).setName("§e" + member.getName()).setDescription("§fCargo §7" + member.getClanGroup().getName()).setSkull(member.getName());
 				ib.build(inventory, x); 
 				start++;
 			}

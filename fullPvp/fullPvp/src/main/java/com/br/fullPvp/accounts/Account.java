@@ -17,10 +17,13 @@ import com.br.fullPvp.accounts.status.Status;
 import com.br.fullPvp.clans.Clan;
 import com.br.fullPvp.clans.ClanGroup;
 import com.br.fullPvp.clans.ClanManager;
+import com.br.fullPvp.clans.ClanMember;
 import com.br.fullPvp.groups.Group;
 import com.br.fullPvp.groups.GroupManager;
+import com.br.fullPvp.groups.PermissionsCase;
 import com.br.fullPvp.mysql.SqlQuerys;
 import com.br.fullPvp.ranks.RankManager;
+import com.br.fullPvp.ranks.Requeriments;
 import com.br.fullPvp.tags.Tag;
 import com.br.fullPvp.tags.TagManager;
 import com.br.fullPvp.utils.TagUpdate;
@@ -41,7 +44,8 @@ public class Account {
 	long timeGroup, firstLogin, lastSee;
 	double real, cash, reputation;
 	boolean online;
-	List<String> permissions, tags;
+	List<PermissionsCase> permissions;
+	List<String> tags;
 	Player player;
 	Status status;
 	Preferences preferences;
@@ -79,6 +83,10 @@ public class Account {
 	public void save() { 
 		try {
 			PreparedStatement stmt = null;
+			List<String> list = new ArrayList<>();
+			for(PermissionsCase p : getPermissions()) { 
+				list.add(p.getPermission() + ";" + p.getTime());
+			}
 			if(exists()) { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.ACCOUNT_UPDATE.getQuery());
 				stmt.setString(1, getNickName());
@@ -94,7 +102,7 @@ public class Account {
 				stmt.setDouble(11, getReal());
 				stmt.setDouble(12, getCash());
 				stmt.setDouble(13, getReputation());
-				stmt.setString(14, getPermissions().isEmpty() ? "null" : getPermissions().toString().replace("[", "").replace("]", ""));
+				stmt.setString(14, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 				stmt.setString(15, getTags().isEmpty() ? "null" : getTags().toString().replace("[", "").replace("]", ""));
 				stmt.setString(16, getUniqueId().toString());
 			} else { 
@@ -115,7 +123,7 @@ public class Account {
 				stmt.setDouble(14, getCash());
 				stmt.setDouble(15, getReputation());
 				stmt.setString(16, getTags().isEmpty() ? "null" : getTags().toString().replace("[", "").replace("]", ""));
-				stmt.setString(17, getPermissions().isEmpty() ? "null" : getPermissions().toString().replace("[", "").replace("]", ""));
+				stmt.setString(17, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 			}
 			stmt.executeUpdate();
 			Main.debug("Conta de " + getNickName() + " salva, preparando para salvar Prefêrencias e Status!");
@@ -187,21 +195,21 @@ public class Account {
 
 	public void remove(TypeCoin typeCoin, double amount) {
 		if(typeCoin.equals(TypeCoin.REAL)) { 
-			setReal(!hasEconomy(typeCoin, amount) ? 0 : getReal() - amount);
+			this.real = this.real < amount ? 0 : this.real - amount;
 		} else if(typeCoin.equals(TypeCoin.CASH)) { 
-			setCash(!hasEconomy(typeCoin, amount) ? 0 : getCash() - amount);
+			this.cash = this.cash < amount ? 0 : this.cash - amount;
 		} else if(typeCoin.equals(TypeCoin.REPUTACAO)) { 
-			setReputation(!hasEconomy(typeCoin, amount) ? 0 : getReputation() - amount);
+			this.reputation = this.reputation < amount ? 0 : this.reputation - amount;
 		}
 	}
 
 	public void add(TypeCoin typeCoin, double amount) {
 		if(typeCoin.equals(TypeCoin.REAL)) { 
-			setReal(getReal() + amount);
+			this.real += amount;
 		} else if(typeCoin.equals(TypeCoin.CASH)) { 
-			setCash(getCash() + amount);
+			this.cash += amount;
 		} else if(typeCoin.equals(TypeCoin.REPUTACAO)) { 
-			setReputation(getReputation() + amount);
+			this.reputation += amount;
 		}
 	}
 	
@@ -222,12 +230,13 @@ public class Account {
 		} else if(getPlayer() != null && getPlayer().isOp()) { 
 			has = true;
 		} else { 
-			for(String p : getPermissions()) { 
-				String[] split = p.split(";");
-				if(split[0].equalsIgnoreCase("*")) { 
-					has = true;
-				} else if(split[0].equalsIgnoreCase(permission)) { 
-					has = split[1].equalsIgnoreCase("-1") ? true : Long.valueOf(split[1]).longValue() > System.currentTimeMillis() ? true : false;
+			for(PermissionsCase p : getPermissions()) { 
+				if(p.getPermission().equalsIgnoreCase(permission)) { 
+					if(p.getTime() == -1) { 
+						has = true;
+					} else if(p.getTime() > System.currentTimeMillis()) { 
+						has = true;
+					}
 				}
 			}
 		}
@@ -247,14 +256,16 @@ public class Account {
 	}
 	
 	public boolean allowUp() {
-		for(String r : RankManager.getInstance().get(getRankName()).getRequirements()) { 
-			String[] split = r.split(";");
-			if(get(TypeCoin.valueOf(split[0])) <  Double.valueOf(split[1])) { 
-				return false;
+		boolean has = false;
+		for(Requeriments r : RankManager.getInstance().get(getRankName()).nextRank().getRequirements()) { 
+			if(get(r.getTypeCoin()) >= r.getValue()) { 
+				has = true;
+				Main.debug("Player > " + getNickName() + " has " + get(r.getTypeCoin()) + ", Price > " + r.getTypeCoin() + "(" + r.getValue() + ")");
+			} else { 
+				has = false;
 			}
-			Main.debug("Player > " + getNickName() + " has " + get(TypeCoin.valueOf(split[0])) + ", Price > " + TypeCoin.valueOf(split[0]) + "(" + Double.valueOf(split[1]) + ")");
 		}
-		return true;
+		return has;
 	}
 	
 	public void updatePrefix() { 
@@ -365,12 +376,23 @@ public class Account {
 	}
 	
 	public boolean hasGroupClan(ClanGroup clanGroup) { 
-		for(String m : ClanManager.getInstance().get(getClanName()).getMembers()) { 
-			String[] split = m.split(";");
-			if(split[0].equalsIgnoreCase(getNickName())) { 
-				return ClanGroup.valueOf(split[1]).getId() >= clanGroup.getId();
+		for(ClanMember c : ClanManager.getInstance().get(getClanName()).getMembers()) { 
+			if(c.getName().equals(getNickName())) { 
+				return c.getClanGroup().getId() >= clanGroup.getId();
 			}
 		}
 		return false;
+	}
+	
+	public void add(String permission, long time) {
+		getPermissions().add(new PermissionsCase(permission, time));
+	}
+
+	public void remove(String permission) {
+		for(PermissionsCase p : getPermissions()) { 
+			if(p.getPermission().equals(permission)) { 
+				getPermissions().remove(p);
+			}
+		}
 	}
 }

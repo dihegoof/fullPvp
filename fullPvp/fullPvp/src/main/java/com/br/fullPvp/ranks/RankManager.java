@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.br.fullPvp.Main;
+import com.br.fullPvp.accounts.TypeCoin;
 import com.br.fullPvp.mysql.SqlQuerys;
 
 import lombok.Getter;
@@ -54,11 +55,14 @@ public class RankManager {
 			PreparedStatement stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.RANK_SELECT_ALL.getQuery());
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) { 
-				List<String> requirements = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("requirements").split(", "))) { 
-					requirements.add(names);
+				List<Requeriments> requirements = new ArrayList<>();
+				if(!rs.getString("requirements").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("requirements").split(", "))) { 
+						String[] split = names.split(";");
+						requirements.add(new Requeriments(TypeCoin.valueOf(split[0]), Double.valueOf(split[1])));
+					}
 				}
-				add(new Rank(rs.getInt("id"), rs.getString("name"), rs.getString("prefix"), rs.getInt("priority"), (requirements.get(0).equals("null") ? new ArrayList<String>() : requirements), rs.getBoolean("defaulted")));
+				add(new Rank(rs.getInt("id"), rs.getString("name"), rs.getString("prefix"), rs.getInt("priority"), requirements, rs.getBoolean("defaulted")));
 				amount++;
 			}
 			Main.debug(amount > 0 ? "Carregado " + amount + " rank(s)" : "Nenhum rank foi carregado!");

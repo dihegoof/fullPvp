@@ -22,7 +22,8 @@ import lombok.Setter;
 public class Clan {
 	
 	String name, tag, leadder, motto;
-	List<String> members, climbed, invites, allies, enemies;
+	List<ClanMember> members;
+	List<String> climbed, invites, allies, enemies;
 	double real;
 	long createdIn;
 	boolean pvp;
@@ -48,11 +49,15 @@ public class Clan {
 	public void save() { 
 		try {
 			PreparedStatement stmt = null;
+			List<String> list = new ArrayList<>();
+			for(ClanMember c : getMembers()) { 
+				list.add(c.getName() + ";" + c.getClanGroup().toString() + ";" + c.getJoinIn());
+			}
 			if(exists()) { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.CLAN_UPDATE.getQuery());
 				stmt.setString(1, getTag());
 				stmt.setString(2, getMotto());
-				stmt.setString(3, getMembers().isEmpty() ? "null" : getMembers().toString().replace("[", "").replace("]", ""));
+				stmt.setString(3, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 				Main.debug("Members > " + getMembers().toString());
 				stmt.setString(4, getClimbed().isEmpty() ? "null" : getClimbed().toString().replace("[", "").replace("]", ""));
 				stmt.setString(5, getInvites().isEmpty() ? "null" : getInvites().toString().replace("[", "").replace("]", ""));
@@ -68,7 +73,7 @@ public class Clan {
 				stmt.setString(2, getTag());
 				stmt.setString(3, getLeadder());
 				stmt.setString(4, getMotto());
-				stmt.setString(5, getMembers().isEmpty() ? "null" : getMembers().toString().replace("[", "").replace("]", ""));
+				stmt.setString(5, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 				stmt.setString(6, getClimbed().isEmpty() ? "null" : getClimbed().toString().replace("[", "").replace("]", ""));
 				stmt.setString(7, getInvites().isEmpty() ? "null" : getInvites().toString().replace("[", "").replace("]", ""));
 				stmt.setString(8, getAllies().isEmpty() ? "null" : getAllies().toString().replace("[", "").replace("]", ""));
@@ -121,10 +126,9 @@ public class Clan {
 	
 	public List<Account> getAccountMembers() { 
 		List<Account> members = new ArrayList<>();
-		for(String m : getMembers()) { 
-			String[] split = m.split(";");
-			if(AccountManager.getInstance().get(split[0]) != null) { 
-				members.add(AccountManager.getInstance().get(split[0]));
+		for(ClanMember c : getMembers()) { 
+			if(AccountManager.getInstance().get(c.getName()) != null) { 
+				members.add(AccountManager.getInstance().get(c.getName()));
 			}
 		}
 		return members;
@@ -165,7 +169,27 @@ public class Clan {
 		}
 	}
 
-	public boolean hasMember(String name) {
-		return AccountManager.getInstance().get(name).getClanName().equals(getName());
+	public boolean hasMember(String nickName) {
+		return AccountManager.getInstance().get(nickName).getClanName().equals(getName());
+	}
+
+	public void removeMember(String nickName) {
+		for(ClanMember c : getMembers()) { 
+			if(c.getName().equals(nickName)) { 
+				getMembers().remove(c);
+			}
+		}
+	}
+
+	public void changeGroup(String nickName, ClanGroup member) {
+		for(ClanMember c : getMembers()) { 
+			if(c.getName().equals(nickName)) { 
+				c.setClanGroup(member);
+			}
+		}
+	}
+
+	public void join(String nickName) {
+		getMembers().add(new ClanMember(nickName, ClanGroup.MEMBER, System.currentTimeMillis()));
 	}
 }

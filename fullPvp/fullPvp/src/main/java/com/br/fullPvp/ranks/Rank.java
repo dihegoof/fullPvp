@@ -2,9 +2,11 @@ package com.br.fullPvp.ranks;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.br.fullPvp.Main;
+import com.br.fullPvp.accounts.TypeCoin;
 import com.br.fullPvp.mysql.SqlQuerys;
 
 import lombok.AllArgsConstructor;
@@ -19,18 +21,22 @@ public class Rank {
 	int id;
 	String name, prefix;
 	int priority;
-	List<String> requirements;
+	List<Requeriments> requirements;
 	boolean defaulted;
 	
 	public void save() { 
 		try {
 			PreparedStatement stmt = null;
+			List<String> list = new ArrayList<>();
+			for(Requeriments r : getRequirements()) { 
+				list.add(r.getTypeCoin().toString() + ";" + r.getValue());
+			}
 			if(exists()) { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.RANK_UPDATE.getQuery());
 				stmt.setString(1, getPrefix());
 				stmt.setInt(2, getPriority());
 				stmt.setBoolean(3, isDefaulted());
-				stmt.setString(4, getRequirements().isEmpty() ? "null" : getRequirements().toString().replace("[", "").replace("]", ""));
+				stmt.setString(4, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 				stmt.setString(5, getName());
 			} else { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.RANK_INSERT.getQuery());
@@ -39,7 +45,7 @@ public class Rank {
 				stmt.setString(3, getPrefix());
 				stmt.setInt(4, getPriority());
 				stmt.setBoolean(5, isDefaulted());
-				stmt.setString(6, getRequirements().isEmpty() ? "null" : getRequirements().toString().replace("[", "").replace("]", ""));
+				stmt.setString(6, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 			}
 			stmt.executeUpdate();
 			Main.debug("Rank " + getName() + " salvo!");
@@ -69,18 +75,26 @@ public class Rank {
 		}
 	}
 
-	public boolean hasRequeriment(String coin) {
-		boolean has = false;
-		for(String r : getRequirements()) { 
-			String[] split = r.split(";");
-			if(split[0].equals(coin)) { 
-				has = true;
-			}
+	public boolean hasRequeriment(TypeCoin typeCoin) {
+		for(Requeriments r : getRequirements()) { 
+			return r.getTypeCoin().equals(typeCoin);
 		}
-		return has;
+		return false;
 	}
 
 	public Rank nextRank() {
 		return RankManager.getInstance().get(getId() + 1);
+	}
+
+	public void remove(TypeCoin typeCoin) {
+		for(Requeriments r : getRequirements()) { 
+			if(r.getTypeCoin().equals(typeCoin)) { 
+				getRequirements().remove(r);
+			}
+		}
+	}
+	
+	public void add(TypeCoin typeCoin, double value) { 
+		getRequirements().add(new Requeriments(typeCoin, value));
 	}
 }

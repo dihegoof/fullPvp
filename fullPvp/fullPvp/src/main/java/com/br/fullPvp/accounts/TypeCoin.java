@@ -21,7 +21,7 @@ public enum TypeCoin {
 		} else if(typeCoin.equals(CASH)) {
 			return Utils.getInstance().formatCash(amount);
 		} else if(typeCoin.equals(REPUTACAO)) {
-			return Utils.getInstance().formatCash(amount);
+			return Utils.getInstance().formatReputation(amount);
 		}
 		return "???";
 	}

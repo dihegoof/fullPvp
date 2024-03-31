@@ -2,6 +2,7 @@ package com.br.fullPvp.groups;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.br.fullPvp.Main;
@@ -19,18 +20,22 @@ public class Group {
 	String name, prefix;
 	int priority;
 	boolean staff, defaulted;
-	List<String> permissions;
+	List<PermissionsCase> permissions;
 	
 	public void save() { 
 		try {
 			PreparedStatement stmt = null;
+			List<String> list = new ArrayList<>();
+			for(PermissionsCase p : getPermissions()) { 
+				list.add(p.getPermission() + ";" + p.getTime());
+			}
 			if(exists()) { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.GROUP_UPDATE.getQuery());
 				stmt.setString(1, getPrefix());
 				stmt.setInt(2, getPriority());
 				stmt.setBoolean(3, isStaff());
 				stmt.setBoolean(4, isDefaulted());
-				stmt.setString(5, getPermissions().isEmpty() ? "null" : getPermissions().toString().replace("[", "").replace("]", ""));
+				stmt.setString(5, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 				stmt.setString(6, getName());
 			} else { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.GROUP_INSERT.getQuery());
@@ -39,7 +44,7 @@ public class Group {
 				stmt.setInt(3, getPriority());
 				stmt.setBoolean(4, isStaff());
 				stmt.setBoolean(5, isDefaulted());
-				stmt.setString(6, getPermissions().isEmpty() ? "null" : getPermissions().toString().replace("[", "").replace("]", ""));
+				stmt.setString(6, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 			}
 			stmt.executeUpdate();
 			Main.debug("Grupo " + getName() + " salvo!");
@@ -71,16 +76,27 @@ public class Group {
 	
 	public boolean hasPermission(String permission) {
 		boolean has = false;
-		if(!getPermissions().isEmpty()) { 
-			for(String p : getPermissions()) { 
-				String[] split = p.split(";");
-				if(split[0].equalsIgnoreCase("*")) { 
+		for(PermissionsCase p : getPermissions()) { 
+			if(p.getPermission().equalsIgnoreCase(permission)) { 
+				if(p.getTime() == -1) { 
 					has = true;
-				} else if(split[0].equalsIgnoreCase(permission)) { 
-					has = split[1].equalsIgnoreCase("-1") ? true : Long.valueOf(split[1]).longValue() > System.currentTimeMillis() ? true : false;
+				} else if(p.getTime() > System.currentTimeMillis()) { 
+					has = true;
 				}
 			}
 		}
 		return has;
+	}
+
+	public void add(String permission, long time) {
+		getPermissions().add(new PermissionsCase(permission, time));
+	}
+
+	public void remove(String permission) {
+		for(PermissionsCase p : getPermissions()) { 
+			if(p.getPermission().equals(permission)) { 
+				getPermissions().remove(p);
+			}
+		}
 	}
 }

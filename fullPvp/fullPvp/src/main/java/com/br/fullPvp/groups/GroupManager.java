@@ -45,11 +45,14 @@ public class GroupManager {
 			PreparedStatement stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.GROUP_SELECT_ALL.getQuery());
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) { 
-				List<String> permissions = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("permissions").split(", "))) { 
-					permissions.add(names);
+				List<PermissionsCase> permissions = new ArrayList<>();
+				if(!rs.getString("permissions").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("permissions").split(", "))) { 
+						String[] split = names.split(";");
+						permissions.add(new PermissionsCase(split[0], Long.valueOf(split[1])));
+					}
 				}
-				add(new Group(rs.getString("name"), rs.getString("prefix"), rs.getInt("priority"), rs.getBoolean("staff"), rs.getBoolean("defaulted"), (permissions.get(0).equals("null") ? new ArrayList<String>() : permissions)));
+				add(new Group(rs.getString("name"), rs.getString("prefix"), rs.getInt("priority"), rs.getBoolean("staff"), rs.getBoolean("defaulted"), permissions));
 				amount++;
 			}
 			Main.debug(amount > 0 ? "Carregado " + amount + " grupo(s)" : "Nenhum grupo foi carregado!");

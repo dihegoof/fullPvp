@@ -1,8 +1,6 @@
 package com.br.fullPvp.ranks.commands;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,6 +13,7 @@ import com.br.fullPvp.accounts.Permissions;
 import com.br.fullPvp.accounts.TypeCoin;
 import com.br.fullPvp.ranks.Rank;
 import com.br.fullPvp.ranks.RankManager;
+import com.br.fullPvp.ranks.Requeriments;
 import com.br.fullPvp.utils.Utils;
 
 public class Ranks extends Utils implements CommandExecutor {
@@ -47,7 +46,7 @@ public class Ranks extends Utils implements CommandExecutor {
 			if(args[0].equalsIgnoreCase("criar")) { 
 				rank = RankManager.getInstance().get(captalize(args[1]));
 				if(rank == null) { 
-					RankManager.getInstance().add(new Rank(RankManager.getInstance().newId(), captalize(args[1]), "NRE", 9, new ArrayList<String>(), false));
+					RankManager.getInstance().add(new Rank(RankManager.getInstance().newId(), captalize(args[1]), "NRE", 9, new ArrayList<Requeriments>(), false));
 					sendMessage(sender, false, "§aRank §7" + captalize(args[1]) + " §acriado!");
 				} else { 
 					sendMessage(sender, false, "§cEste rank já existe!");
@@ -65,9 +64,8 @@ public class Ranks extends Utils implements CommandExecutor {
 				rank = RankManager.getInstance().get(captalize(args[1]));
 				if(rank != null) { 
 					StringBuilder list = new StringBuilder();
-					for(String r : rank.getRequirements()) { 
-						String[] split = r.split(";");
-						list.append(TypeCoin.formatExactFormatter(TypeCoin.valueOf(split[0]), Double.valueOf(split[1])) + ", ");
+					for(Requeriments r : rank.getRequirements()) { 
+						list.append(TypeCoin.formatExactFormatter(r.getTypeCoin(), r.getValue()) + ", ");
 					}
 					sendMessage(sender, true, 
 							  "§aRank §7" + rank.getName() + "§a: §8(" + rank.getPrefix().replace("&", "§") + "§8)", 
@@ -87,23 +85,9 @@ public class Ranks extends Utils implements CommandExecutor {
 					rank = RankManager.getInstance().get(captalize(args[2]));
 					if(rank != null) { 
 						if(isCoin(args[3].toUpperCase())) { 
-							if(rank.hasRequeriment(args[3].toUpperCase())) {
-								boolean has = false;
-								List<String> requeriments = rank.getRequirements();
-								Iterator<String> iterator =  rank.getRequirements().iterator();
-								while(iterator.hasNext()) { 
-									String[] split = iterator.next().split(";");
-									if(split[0].equalsIgnoreCase(args[3].toUpperCase())) { 
-										iterator.remove();
-										has = true;
-									}
-								}
-								if(has) { 
-									rank.setRequirements(requeriments);
-									sendMessage(sender, false, "§aRequisito removido do grupo §7" + rank.getName() + "§a!");
-								} else { 
-									sendMessage(sender, false, "§cRequisito não encontrado!");
-								}
+							if(rank.hasRequeriment(TypeCoin.valueOf(args[3].toUpperCase()))) {
+								rank.remove(TypeCoin.valueOf(args[3].toUpperCase()));
+								sendMessage(sender, false, "§aRequisito removido do grupo §7" + rank.getName() + "§a!");
 							} else {
 								sendMessage(sender, false, "§cEste rank não possui este requisito!");
 							}
@@ -124,10 +108,8 @@ public class Ranks extends Utils implements CommandExecutor {
 					if(rank != null) { 
 						if(isCoin(args[3].toUpperCase())) { 
 							if(isDouble(args[4])) { 
-								if(!rank.hasRequeriment(args[3].toUpperCase())) {
-									List<String> requeriments = rank.getRequirements();
-									requeriments.add(TypeCoin.valueOf(args[3].toUpperCase()).toString() + ";" + args[4]);
-									rank.setRequirements(requeriments);
+								if(!rank.hasRequeriment(TypeCoin.valueOf(args[3].toUpperCase()))) {
+									rank.add(TypeCoin.valueOf(args[3].toUpperCase()), Double.valueOf(args[4]));
 									sendMessage(sender, false, "§aRequisito §7" + TypeCoin.formatExactFormatter(TypeCoin.valueOf(args[3].toUpperCase()), Double.valueOf(args[4])) + " §aadicionado para rank §7" + rank.getName() + "§a!");
 								} else { 
 									sendMessage(sender, false, "§cEste rank já possui este requisito!");
@@ -176,8 +158,8 @@ public class Ranks extends Utils implements CommandExecutor {
 	private void sintax(CommandSender sender, String label) { 
 		sintaxCommand(sender, "§c/" + label + " lista",
 							  "§c/" + label + " <criar, deletar, info> <nome>", 
-							  "§c/" + label + " req <add> <rank> <economia> <quantidade>",
-							  "§c/" + label + " req <remover> <rank> <economia>",
+							  "§c/" + label + " req add <rank> <economia> <quantidade>",
+							  "§c/" + label + " req remover <rank> <economia>",
 							  "§c/" + label + " definirprefixo <rank> <prefixo>",
 							  "§c/" + label + " definirconf <rank> padrao");
 	}

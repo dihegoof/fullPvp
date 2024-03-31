@@ -78,6 +78,7 @@ public class Shop extends Utils implements CommandExecutor {
 									}
 								}
 								sendMessage(player, false, (amount > 0 ? "§aForam adicionados §f" + amount + " §aà sessão §7" + session.getName() + "§a!" : "§cNenhum item foi adicionado à sessão §7" + session.getName() + "§c!"));
+								player.getInventory().clear();
 							} else { 
 								for(Item i : session.getItens()) { 
 									i.delete();

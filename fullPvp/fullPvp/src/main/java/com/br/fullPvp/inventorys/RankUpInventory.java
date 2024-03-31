@@ -8,6 +8,7 @@ import org.bukkit.inventory.Inventory;
 import com.br.fullPvp.accounts.Account;
 import com.br.fullPvp.accounts.TypeCoin;
 import com.br.fullPvp.ranks.RankManager;
+import com.br.fullPvp.ranks.Requeriments;
 import com.br.fullPvp.utils.HeadLink;
 import com.br.fullPvp.utils.ItemBuilder;
 import com.br.fullPvp.utils.Utils;
@@ -35,9 +36,8 @@ public class RankUpInventory extends Utils {
 		
 		if(RankManager.getInstance().get(account.getRankName()).nextRank() != null) { 
 			StringBuilder list = new StringBuilder();
-			for(String r : RankManager.getInstance().get(account.getRankName()).nextRank().getRequirements()) { 
-				String[] split = r.split(";");
-				list.append(TypeCoin.formatExactFormatter(TypeCoin.valueOf(split[0]), Double.valueOf(split[1])) + ", ");
+			for(Requeriments r : RankManager.getInstance().get(account.getRankName()).nextRank().getRequirements()) { 
+				list.append(TypeCoin.formatExactFormatter(r.getTypeCoin(), r.getValue()) + ", ");
 			}
 			
 			ib = new ItemBuilder(Material.SKULL_ITEM).setDurability(3).setName("§a" + RankManager.getInstance().get(account.getRankName()).nextRank().getName()).setSkinUrl(HeadLink.valueOf(RankManager.getInstance().get(account.getRankName()).nextRank().getName().substring(0, 1)).getLink()).setDescription(

@@ -1,8 +1,6 @@
 package com.br.fullPvp.groups.commands;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,6 +12,7 @@ import com.br.fullPvp.accounts.AccountManager;
 import com.br.fullPvp.accounts.Permissions;
 import com.br.fullPvp.groups.Group;
 import com.br.fullPvp.groups.GroupManager;
+import com.br.fullPvp.groups.PermissionsCase;
 import com.br.fullPvp.utils.TimeManager;
 import com.br.fullPvp.utils.Utils;
 
@@ -47,7 +46,7 @@ public class Groups extends Utils implements CommandExecutor {
 			if(args[0].equalsIgnoreCase("criar")) { 
 				group = GroupManager.getInstance().get(captalize(args[1]));
 				if(group == null) { 
-					GroupManager.getInstance().add(new Group(captalize(args[1]), "NRE", 9, false, false, new ArrayList<String>()));
+					GroupManager.getInstance().add(new Group(captalize(args[1]), "NRE", 9, false, false, new ArrayList<PermissionsCase>()));
 					sendMessage(sender, false, "§aGrupo §7" + captalize(args[1]) + " §acriado!");
 				} else { 
 					sendMessage(sender, false, "§cEste grupo já existe!");
@@ -73,15 +72,14 @@ public class Groups extends Utils implements CommandExecutor {
 				group = GroupManager.getInstance().get(captalize(args[1]));
 				if(group != null) { 
 					StringBuilder list = new StringBuilder();
-					for(String p : group.getPermissions()) { 
-						String[] split = p.split(";");
+					for(PermissionsCase p : group.getPermissions()) { 
 						list.append(
-								split[1].equalsIgnoreCase("-1") ? 
-										split[0] + ", " : 
-										Long.valueOf(split[1]) < System.currentTimeMillis() ? 
-												split[0] + "§8(§cexpirado§8)§7, " : 
-										split[0] + 
-										"§8(" + compareTime(Long.valueOf(split[1])) + ")§7, ");
+								p.isPermanent() ? 
+										p.getPermission() + ", " : 
+										Long.valueOf(p.getTime()) < System.currentTimeMillis() ? 
+												p.getPermission() + "§8(§cexpirado§8)§7, " : 
+										p.getPermission() + 
+										"§8(" + compareTime(Long.valueOf(p.getTime())) + ")§7, ");
 					}
 					sendMessage(sender, true, "§aGrupo §7" + group.getName() + "§a: §8(" + group.getPrefix().replace("&", "§") + "§8)", 
 											  "§aPrioridade: §7" + group.getPriority(),
@@ -99,29 +97,15 @@ public class Groups extends Utils implements CommandExecutor {
 				if(group != null) { 
 					if(args[1].equalsIgnoreCase("add")) { 
 						if(!group.hasPermission(args[3])) { 
-							List<String> permissions = group.getPermissions();
-							permissions.add(args[3] + ";-1");
-							group.setPermissions(permissions);
+							group.add(args[3], -1);
 							sendMessage(sender, false, "§aPermissão §7" + args[3] + " §aadicionada ao grupo §7" + group.getName() + " §apermanentemente!");
 						} else { 
 							sendMessage(sender, false, "§cEste grupo já possui esta permissão!");
 						}
 					} else if(args[1].equalsIgnoreCase("remover")) { 
 						if(group.hasPermission(args[3])) { 
-							boolean has = false;
-							List<String> permissions = group.getPermissions();
-							Iterator<String> iterator =  group.getPermissions().iterator();
-							while(iterator.hasNext()) { 
-								String[] split = iterator.next().split(";");
-								if(split[0].equalsIgnoreCase(args[3])) { 
-									iterator.remove();
-									has = true;
-								}
-							}
-							if(has) { 
-								group.setPermissions(permissions);
-								sendMessage(sender, false, "§aPermissão §7" + args[3] + " §aremovido do grupo §7" + group.getName() + "§a!");
-							}
+							group.remove(args[3]);
+							sendMessage(sender, false, "§aPermissão §7" + args[3] + " §aremovida do grupo §7" + group.getName() + "§a!");
 						} else { 
 							sendMessage(sender, false, "§cEste grupo não possui esta permissão!");
 						}
@@ -137,13 +121,12 @@ public class Groups extends Utils implements CommandExecutor {
 				if(group != null) { 
 					if(args[1].equalsIgnoreCase("add")) { 
 						if(!group.hasPermission(args[3])) { 
-							List<String> permissions = group.getPermissions();
 							if(isTime(args[4])) { 
-								permissions.add(args[3] + ";" + TimeManager.getInstance().getTime(args[4]));
+								group.add(args[3], TimeManager.getInstance().getTime(args[4]));
 							} else { 
 								sendMessage(sender, false, "§cTempo inválido!");
+								return true;
 							}
-							group.setPermissions(permissions);
 							sendMessage(sender, false, "§aPermissão §7" + args[3] + " §aadicionada ao grupo §7" + group.getName() + " §adurante §f" + compareTime(TimeManager.getInstance().getTime(args[4])) + "§a!");
 						} else { 
 							sendMessage(sender, false, "§cEste grupo já possui esta permissão!");

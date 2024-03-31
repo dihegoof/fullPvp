@@ -8,14 +8,21 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.ServerListPingEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.br.fullPvp.Main;
 import com.br.fullPvp.accounts.Account;
 import com.br.fullPvp.accounts.AccountManager;
 import com.br.fullPvp.accounts.Permissions;
+import com.br.fullPvp.accounts.status.Status.TypeUnit;
+import com.br.fullPvp.clans.Clan;
+import com.br.fullPvp.clans.ClanManager;
+import com.br.fullPvp.clans.status.ClanStats.TypeUnitClan;
 import com.br.fullPvp.essentials.preferences.ServerPreferencesManager;
 import com.br.fullPvp.groups.Group;
 import com.br.fullPvp.groups.GroupManager;
@@ -102,5 +109,47 @@ public class EssentialsListener extends Utils implements Listener {
 			sendMessage(players, false, "§7[§eL§7] " + displayName + "§f:§7 " + message);
 		}
 		list.clear();
+	}
+	
+	@EventHandler
+	public void onPlayerDeath(final PlayerDeathEvent event) { 
+		event.setDeathMessage(null);
+		Account account = AccountManager.getInstance().get(event.getEntity().getName());
+		if(account == null) return;
+		if(account.hasClan()) { 
+			Clan clan = ClanManager.getInstance().get(account.getClanName());
+			if(clan == null) return;
+			clan.getStatus().add(1, TypeUnitClan.DEATHS);
+			if(clan.getStatus().hasKillStreak()) { 
+				clan.getStatus().clearKillStreak();
+			}
+		}
+		if(event.getEntity().getKiller() instanceof Player) { 
+			Account accountKiller = AccountManager.getInstance().get(event.getEntity().getKiller().getName());
+			if(accountKiller == null) return;
+			if(accountKiller.hasClan()) { 
+				Clan clanKiller = ClanManager.getInstance().get(accountKiller.getClanName());
+				if(clanKiller == null) return;
+				clanKiller.getStatus().add(1, TypeUnitClan.KILLS);
+			}
+		} else { 
+			sendMessage((Player)event.getEntity(), false, "§cVocê morreu de forma desconheçida!");
+		}
+		account.getStatus().add(1, TypeUnit.DEATHS);
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				event.getEntity().spigot().respawn();
+			}
+		}.runTaskLater(Main.getPlugin(), 5L);
+	}
+	
+	@EventHandler
+	public void onPlayerRespawn(PlayerRespawnEvent event) { 
+		Account account = AccountManager.getInstance().get(event.getPlayer().getName());
+		if(account == null) return;
+		account.teleportSpawn();
+		account.updateFly();
 	}
 }

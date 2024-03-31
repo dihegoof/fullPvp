@@ -41,11 +41,11 @@ public class Kit {
 	public void save() { 
 		try {
 			PreparedStatement stmt = null;
+			ArrayList<String> itens = new ArrayList<>();
+			for(ItemStack i : getItens()) { 
+				itens.add(SerializeItemStack.getInstance().convert(i, 0));
+			}
 			if(exists()) { 
-				ArrayList<String> itens = new ArrayList<>();
-				for(ItemStack i : getItens()) { 
-					itens.add(SerializeItemStack.getInstance().convert(i, 0));
-				}
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.KIT_UPDATE.getQuery());
 				stmt.setString(1, getPermission());
 				stmt.setString(2, getTimeCustom());
@@ -55,10 +55,6 @@ public class Kit {
 				stmt.setString(6, itens.isEmpty() ? "null" : itens.toString().replace("[", "").replace("]", ""));
 				stmt.setString(7, getName());
 			} else { 
-				ArrayList<String> itens = new ArrayList<>();
-				for(ItemStack i : getItens()) { 
-					itens.add(SerializeItemStack.getInstance().convert(i, 0));
-				}
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.KIT_INSERT.getQuery());
 				stmt.setString(1, getName());
 				stmt.setString(2, getPermission());

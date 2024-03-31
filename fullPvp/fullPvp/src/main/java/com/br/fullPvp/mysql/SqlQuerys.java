@@ -110,6 +110,13 @@ public enum SqlQuerys {
 	PLAYER_KIT_INSERT("INSERT INTO `fullpvp_player_kits` (`uniqueid`,`kitcollected`) VALUES (?,?);"),
 	PLAYER_KIT_UPDATE("UPDATE `fullpvp_player_kits` SET `kitcollected`=? WHERE `uniqueid`=?"),
 	PLAYER_KIT_DELETE("DELETE FROM `fullpvp_player_kits` WHERE `uniqueid`=?"),
+	
+	MINE_CREATE_TABLE("CREATE TABLE IF NOT EXISTS `fullpvp_mines` (`name` VARCHAR(32), `timetoreset` VARCHAR(16), `enable` BOOLEAN, `enableholo` BOOLEAN, `pos1` VARCHAR(100), `pos2` VARCHAR(100), `locholo` VARCHAR(100), `composition` VARCHAR(1000));"),
+	MINE_SELECT("SELECT * FROM `fullpvp_mines` WHERE `name`=?"),
+	MINE_SELECT_ALL("SELECT * FROM `fullpvp_mines`;"),
+	MINE_INSERT("INSERT INTO `fullpvp_mines` (`name`,`timetoreset`,`enable`,`enableholo`,`pos1`,`pos2`,`locholo`,`composition`) VALUES (?,?,?,?,?,?,?,?);"),
+	MINE_UPDATE("UPDATE `fullpvp_mines` SET `timetoreset`=?,`enable`=?,`enableholo`=?,`pos1`=?,`pos2`=?,`locholo`=?,`composition`=? WHERE `name`=?"),
+	MINE_DELETE("DELETE FROM `fullpvp_mines` WHERE `name`=?"),
 	;
 	
 	String query;

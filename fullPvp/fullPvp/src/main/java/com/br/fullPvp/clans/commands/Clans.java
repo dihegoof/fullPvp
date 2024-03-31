@@ -1,6 +1,5 @@
 package com.br.fullPvp.clans.commands;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -9,13 +8,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.br.fullPvp.Main;
 import com.br.fullPvp.accounts.Account;
 import com.br.fullPvp.accounts.AccountManager;
 import com.br.fullPvp.accounts.TypeCoin;
 import com.br.fullPvp.clans.Clan;
 import com.br.fullPvp.clans.ClanGroup;
 import com.br.fullPvp.clans.ClanManager;
+import com.br.fullPvp.clans.ClanMember;
 import com.br.fullPvp.inventorys.ClanInventory;
 import com.br.fullPvp.inventorys.ClanInventory.TypeInventoryClan;
 import com.br.fullPvp.utils.ActionBar;
@@ -46,24 +45,10 @@ public class Clans extends Utils implements CommandExecutor {
 						if(!account.hasGroupClan(ClanGroup.LEADDER)) {
 							clan = ClanManager.getInstance().get(account.getClanName());
 							if(clan == null) return true;
-							boolean has = false;
-							List<String> members = clan.getMembers();
-							Iterator<String> iterator = clan.getMembers().iterator();
-							while(iterator.hasNext()) { 
-								String[] split = iterator.next().split(";");
-								if(split[0].equalsIgnoreCase(player.getName())) { 
-									iterator.remove();
-									has = true;
-								}
-							}
-							if(has) { 
-								clan.setMembers(members);
-								clan.sendMessage(true, "O jogador " + player.getName() + " saiu do clã");
-								account.setClanName("NRE");
-								account.updatePrefix();
-							} else { 
-								Main.debug("Ocorreu um erro na saída de " + player.getName() + " do clã");
-							}
+							clan.removeMember(player.getName());
+							clan.sendMessage(true, "O jogador " + player.getName() + " saiu do clã");
+							account.setClanName("NRE");
+							account.updatePrefix();
 						} else { 
 							sendMessage(player, false, "§cVocê não pode sair do clã, você deve deleta-lo!");
 						}
@@ -211,24 +196,10 @@ public class Clans extends Utils implements CommandExecutor {
 								if(account != accountTarget) { 
 									if(clan.hasMember(accountTarget.getNickName())) { 
 										if(accountTarget.hasGroupClan(ClanGroup.MEMBER)) {
-											boolean has = false;
-											List<String> members = clan.getMembers();
-											Iterator<String> iterator = clan.getMembers().iterator();
-											while(iterator.hasNext()) { 
-												String[] split = iterator.next().split(";");
-												if(split[0].equalsIgnoreCase(accountTarget.getNickName()) && split[1].equalsIgnoreCase(ClanGroup.MEMBER.toString())) { 
-													iterator.remove();
-													has = true;
-												}
-											}
-											if(has) { 
-												members.add(accountTarget.getNickName() + ";" + ClanGroup.RECRUIT.toString());
-												clan.setMembers(members);
-												clan.sendMessage(true, "O jogador " + player.getName() + " foi promovido");
-											} else { 
-												sendMessage(player, false, "§cEste jogador já está no cargo máximo!");
-												Main.debug("Ocorreu um erro na promoção de " + accountTarget.getNickName() + " de cargo");
-											}
+											clan.changeGroup(accountTarget.getNickName(), ClanGroup.RECRUIT);
+											clan.sendMessage(true, "O jogador " + accountTarget.getNickName() + " foi promovido");
+										} else { 
+											sendMessage(player, false, "§cEste jogador já está no cargo máximo!");
 										}
 									} else { 
 										sendMessage(player, false, "§cEste jogador não faz parte do clã!");
@@ -255,24 +226,10 @@ public class Clans extends Utils implements CommandExecutor {
 								if(account != accountTarget) { 
 									if(clan.hasMember(accountTarget.getNickName())) { 
 										if(accountTarget.hasGroupClan(ClanGroup.RECRUIT)) {
-											boolean has = false;
-											List<String> members = clan.getMembers();
-											Iterator<String> iterator = members.iterator();
-											while(iterator.hasNext()) { 
-												String[] split = iterator.next().split(";");
-												if(split[0].equalsIgnoreCase(accountTarget.getNickName()) && split[1].equalsIgnoreCase(ClanGroup.RECRUIT.toString())) { 
-													iterator.remove();
-													has = true;
-												}
-											}
-											if(has) { 
-												members.add(accountTarget.getNickName() + ";" + ClanGroup.MEMBER.toString());
-												clan.setMembers(members);
-												clan.sendMessage(true, "O jogador " + player.getName() + " foi rebaixado");
-											} else { 
-												sendMessage(player, has, "§cEste jogador já está no cargo mínimo!");
-												Main.debug("Ocorreu um erro no rebaixamento de " + accountTarget.getNickName() + " de cargo");
-											}
+											clan.changeGroup(accountTarget.getNickName(), ClanGroup.MEMBER);
+											clan.sendMessage(true, "O jogador " + accountTarget.getNickName() + " foi rebaixado");
+										} else { 
+											sendMessage(player, false, "§cEste jogador já está no cargo mínimo!");
 										}
 									} else { 
 										sendMessage(player, false, "§cEste jogador não faz parte do clã!");
@@ -298,25 +255,11 @@ public class Clans extends Utils implements CommandExecutor {
 							if(accountTarget != null) { 
 								if(account != accountTarget) { 
 									if(clan.hasMember(accountTarget.getNickName())) { 
-										boolean has = false;
-										List<String> members = clan.getMembers();
-										Iterator<String> iterator =  clan.getMembers().iterator();
-										while(iterator.hasNext()) { 
-											String[] split = iterator.next().split(";");
-											if(split[0].equalsIgnoreCase(accountTarget.getNickName())) { 
-												iterator.remove();
-												has = true;
-											}
-										}
-										if(has) { 
-											accountTarget.setClanName("NRE");
-											accountTarget.updatePrefix();
-											clan.setMembers(members);
-											clan.sendMessage(true, "O jogador " + player.getName() + " foi expulso do clã");
-											accountTarget.sendMessage(true, "§cVocê foi expulso do clã!");
-										} else { 
-											Main.debug("Ocorreu um erro no rebaixamento de " + accountTarget.getNickName() + " de cargo");
-										}
+										accountTarget.setClanName("NRE");
+										accountTarget.updatePrefix();
+										clan.removeMember(accountTarget.getNickName());
+										clan.sendMessage(true, "O jogador " + player.getName() + " foi expulso do clã");
+										accountTarget.sendMessage(true, "§cVocê foi expulso do clã!");
 									} else { 
 										sendMessage(player, false, "§cEste jogador não faz parte do clã!");
 									}
@@ -342,8 +285,8 @@ public class Clans extends Utils implements CommandExecutor {
 								if(args[2].length() >= 3 && args[2].length() < 6) { 
 									clan = new Clan(args[1], args[2], player.getName());
 									ClanManager.getInstance().add(clan);
-									List<String> members = clan.getMembers();
-									members.add(player.getName() + ";" + ClanGroup.LEADDER.toString());
+									List<ClanMember> members = clan.getMembers();
+									members.add(new ClanMember(player.getName(), ClanGroup.LEADDER, System.currentTimeMillis()));
 									clan.setMembers(members);
 									account.setClanName(args[1]);
 									account.updatePrefix();
@@ -373,9 +316,7 @@ public class Clans extends Utils implements CommandExecutor {
 							if(invites.contains(player.getName())) { 
 								invites.remove(player.getName());
 								clan.sendMessage(true, player.getName() + " entrou para o clã");
-								List<String> members = clan.getMembers();
-								members.add(player.getName() + ";" + ClanGroup.MEMBER.toString());
-								clan.setMembers(members);
+								clan.join(player.getName());
 								account.setClanName(clan.getName());
 								account.updatePrefix();
 								sendMessage(player, false, "§aVocê entrou no clã §7" + clan.getName() + "§a!");

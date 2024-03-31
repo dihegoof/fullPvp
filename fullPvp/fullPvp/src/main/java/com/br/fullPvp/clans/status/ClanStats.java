@@ -15,6 +15,12 @@ import lombok.Setter;
 @Setter
 public class ClanStats {
 	
+	public enum TypeUnitClan { 
+		
+		KILLS, DEATHS, KILLSTREAK;
+		
+	}
+	
 	String clanName;
 	double kills, deaths, killStreak;
 	
@@ -62,20 +68,36 @@ public class ClanStats {
 		}
 	}
 
-	public void add(String name) { 
-		if(name.equals("k")) { 
-			this.kills += 1;
-		} else if(name.equals("d")) { 
-			this.deaths += 1;
-		} else if(name.equals("ks")) { 
-			this.killStreak += 1;
+	public void add(double amount, TypeUnitClan typeUnit) { 
+		if(typeUnit.equals(TypeUnitClan.KILLS)) { 
+			this.kills += amount;
+		} else if(typeUnit.equals(TypeUnitClan.DEATHS)) { 
+			this.deaths += amount;
+		} else { 
+			this.killStreak += amount;
 		}
 	}
 	
+	public void remove(double amount, TypeUnitClan typeUnit) { 
+		if(typeUnit.equals(TypeUnitClan.KILLS)) { 
+			this.kills = (this.kills < amount ? 0 : this.kills - amount);
+		} else if(typeUnit.equals(TypeUnitClan.DEATHS)) { 
+			this.deaths = (this.deaths < amount ? 0 : this.deaths - amount);
+		}
+	}
+	
+	public void clearKillStreak() { 
+		this.killStreak = 0;
+	}
+	
 	public double getKdr() {
-		if(kills == 0 && deaths == 0) { 
+		if(this.kills == 0 && this.deaths == 0) { 
 			return 0.0;
 		}
-		return kills / deaths;
+		return this.kills / this.deaths;
+	}
+
+	public boolean hasKillStreak() {
+		return this.killStreak > 0;
 	}
 }

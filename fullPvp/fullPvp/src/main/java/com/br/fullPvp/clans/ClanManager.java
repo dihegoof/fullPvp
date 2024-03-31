@@ -54,27 +54,35 @@ public class ClanManager {
 			PreparedStatement stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.CLAN_SELECT_ALL.getQuery());
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) { 
-				List<String> members = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("members").split(", "))) { 
-					members.add(names);
+				List<ClanMember> members = new ArrayList<>();
+				List<String> climbed = new ArrayList<>(), invites = new ArrayList<>(), allies = new ArrayList<>(), enemies = new ArrayList<>();
+				if(!rs.getString("members").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("members").split(", "))) { 
+						String[] split = names.split(";");
+						members.add(new ClanMember(split[0], ClanGroup.valueOf(split[1]), Long.valueOf(split[2])));
+					}
 				}
-				List<String> climbed = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("climbed").split(", "))) { 
-					climbed.add(names);
+				if(!rs.getString("climbed").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("climbed").split(", "))) { 
+						climbed.add(names);
+					}
 				}
-				List<String> invites = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("invites").split(", "))) { 
-					invites.add(names);
+				if(!rs.getString("invites").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("invites").split(", "))) { 
+						invites.add(names);
+					}
 				}
-				List<String> allies = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("allies").split(", "))) { 
-					allies.add(names);
+				if(!rs.getString("allies").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("allies").split(", "))) { 
+						allies.add(names);
+					}
 				}
-				List<String> enemies = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("enemies").split(", "))) { 
-					enemies.add(names);
+				if(!rs.getString("enemies").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("enemies").split(", "))) { 
+						enemies.add(names);
+					}
 				}
-				Clan clan = new Clan(rs.getString("name"), rs.getString("tag"), rs.getString("leadder"), rs.getString("motto"), (members.get(0).equals("null") ? new ArrayList<String>() : members), (climbed.get(0).equals("null") ? new ArrayList<String>() : climbed), (invites.get(0).equals("null") ? new ArrayList<String>() : invites), (allies.get(0).equals("null") ? new ArrayList<String>() : allies), (enemies.get(0).equals("null") ? new ArrayList<String>() : enemies), rs.getDouble("real"), rs.getLong("createdin"), rs.getBoolean("pvp"), null);
+				Clan clan = new Clan(rs.getString("name"), rs.getString("tag"), rs.getString("leadder"), rs.getString("motto"), members, climbed, invites, allies, enemies, rs.getDouble("real"), rs.getLong("createdin"), rs.getBoolean("pvp"), null);
 				clan.loadStatus();
 				add(clan);
 				amount++;

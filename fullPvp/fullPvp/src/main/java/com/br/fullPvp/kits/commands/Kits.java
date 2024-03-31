@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import com.br.fullPvp.accounts.Account;
 import com.br.fullPvp.accounts.AccountManager;
 import com.br.fullPvp.accounts.Permissions;
+import com.br.fullPvp.inventorys.KitInventory;
+import com.br.fullPvp.inventorys.KitInventory.TypeInventoryKit;
 import com.br.fullPvp.kits.Kit;
 import com.br.fullPvp.kits.Kit.Delay;
 import com.br.fullPvp.kits.KitManager;
@@ -30,7 +32,7 @@ public class Kits extends Utils implements CommandExecutor {
 			Account account = AccountManager.getInstance().get(player.getName());
 			if(account == null) return true;
 			if(args.length == 0) {
-				//Abrir inventário
+				KitInventory.getInstance().create(player, TypeInventoryKit.KITS, null, account, null, 1);
 				return true;
 			} else if(args.length == 1) { 
 				if(!account.hasPermission(Permissions.MANAGE_KIT.getPermission())) { 
@@ -58,6 +60,7 @@ public class Kits extends Utils implements CommandExecutor {
 							}
 							KitManager.getInstance().add(new Kit(captalize(args[1]), "kit." + args[1].toLowerCase(), "5h", new ItemBuilder(Material.STONE).getStack(), Delay.CUSTOM, itens, false));
 							sendMessage(sender, false, "§aKit §7" + captalize(args[1]) + " §acriado!");
+							player.getInventory().clear();
 						} else { 
 							sendMessage(player, false, "§cVocê está com o inventário vazio!");
 						}

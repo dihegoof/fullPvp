@@ -34,3 +34,5 @@ commands:
      aliases: [clan, cla]
    shop:
      aliases: [loja]
+   kits:
+     aliases: [kit]

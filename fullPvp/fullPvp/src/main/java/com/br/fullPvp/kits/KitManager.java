@@ -53,11 +53,13 @@ public class KitManager {
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) { 
 				List<ItemStack> itens = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("itens").split(", "))) { 
-					itens.add(SerializeItemStack.getInstance().desconvert(names));
+				if(!rs.getString("itens").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("itens").split(", "))) { 
+						itens.add(SerializeItemStack.getInstance().desconvert(names));
+					}
 				}
 				String[] split = rs.getString("icon").split(";");
-				add(new Kit(rs.getString("name"), rs.getString("permission"), rs.getString("timecustom"), new ItemBuilder(Material.getMaterial(Integer.valueOf(split[0]))).setDurability(Integer.valueOf(split[1])).getStack(), Delay.valueOf(rs.getString("delay")), (itens.get(0).equals("null") ? new ArrayList<ItemStack>() : itens), rs.getBoolean("free")));
+				add(new Kit(rs.getString("name"), rs.getString("permission"), rs.getString("timecustom"), new ItemBuilder(Material.getMaterial(Integer.valueOf(split[0]))).setDurability(Integer.valueOf(split[1])).getStack(), Delay.valueOf(rs.getString("delay")), itens, rs.getBoolean("free")));
 				amount++;
 			}
 			Main.debug(amount > 0 ? "Carregado " + amount + " kit(s)" : "Nenhuma kit foi carregado!");

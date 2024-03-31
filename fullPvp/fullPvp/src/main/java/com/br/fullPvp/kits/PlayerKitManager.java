@@ -46,11 +46,14 @@ public class PlayerKitManager {
 			PreparedStatement stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.PLAYER_KIT_SELECT_ALL.getQuery());
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) { 
-				List<String> kitCollected = new ArrayList<>();
-				for(String names : Arrays.asList(rs.getString("kitcollected").split(", "))) { 
-					kitCollected.add(names);
+				List<KitCollected> kitCollected = new ArrayList<>();
+				if(!rs.getString("kitcollected").equalsIgnoreCase("null")) { 
+					for(String names : Arrays.asList(rs.getString("kitcollected").split(", "))) { 
+						String[] split = names.split(";");
+						kitCollected.add(new KitCollected(split[0], Long.valueOf(split[1])));
+					}
 				}
-				add(new PlayerKits(UUID.fromString(rs.getString("uniqueid")), (kitCollected.get(0).equals("null") ? new ArrayList<String>() : kitCollected)));
+				add(new PlayerKits(UUID.fromString(rs.getString("uniqueid")), kitCollected));
 				amount++;
 			}
 			Main.debug(amount > 0 ? "Carregado " + amount + " kit(s) recolhidos" : "Nenhuma kit recolhido foi carregado!");

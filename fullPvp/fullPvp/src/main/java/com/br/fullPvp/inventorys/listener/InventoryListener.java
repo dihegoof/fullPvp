@@ -21,14 +21,23 @@ import com.br.fullPvp.clans.ClanGroup;
 import com.br.fullPvp.clans.ClanManager;
 import com.br.fullPvp.inventorys.AccountInventory;
 import com.br.fullPvp.inventorys.ClanInventory;
+import com.br.fullPvp.inventorys.KitInventory;
+import com.br.fullPvp.inventorys.KitInventory.TypeInventoryKit;
 import com.br.fullPvp.inventorys.ShopInventory;
 import com.br.fullPvp.inventorys.ShopInventory.TypeInventoryShop;
 import com.br.fullPvp.inventorys.ClanInventory.TypeInventoryClan;
 import com.br.fullPvp.inventorys.TagInventory;
 import com.br.fullPvp.inventorys.TagInventory.TypeInventoryTag;
 import com.br.fullPvp.inventorys.WarpInventory;
+import com.br.fullPvp.kits.Kit;
+import com.br.fullPvp.kits.KitCollected;
+import com.br.fullPvp.kits.KitManager;
+import com.br.fullPvp.kits.PlayerKitManager;
+import com.br.fullPvp.kits.PlayerKits;
+import com.br.fullPvp.kits.Kit.Delay;
 import com.br.fullPvp.inventorys.AccountInventory.TypeInventoryAccount;
 import com.br.fullPvp.ranks.RankManager;
+import com.br.fullPvp.ranks.Requeriments;
 import com.br.fullPvp.shop.item.Item;
 import com.br.fullPvp.shop.item.ItemManager;
 import com.br.fullPvp.shop.session.Session;
@@ -147,9 +156,8 @@ public class InventoryListener extends Utils implements Listener {
 			if(account == null) return;
 			if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aConfirmar")) { 
 				if(account.allowUp()) { 
-					for(String r : RankManager.getInstance().get(account.getRankName()).getRequirements()) { 
-						String[] split = r.split(";");
-						account.remove(TypeCoin.valueOf(split[0]), Double.valueOf(split[1]));
+					for(Requeriments r : RankManager.getInstance().get(account.getRankName()).getRequirements()) { 
+						account.remove(r.getTypeCoin(), r.getValue());
 					}
 					account.setRankName(RankManager.getInstance().get(account.getRankName()).nextRank().getName());
 					for(Player p : Bukkit.getOnlinePlayers()) { 
@@ -677,6 +685,65 @@ public class InventoryListener extends Utils implements Listener {
 				shoppingCart.remove(item);
 				ActionBar.getInstance().sendActionBarMessage(player, "§cItem removido do carrinho de compras!");
 				ShopInventory.getInstance().create(player, account, TypeInventoryShop.SHOPPING_CART, null, null, 1, 1);
+			}
+			return;
+		} else if(event.getInventory().getTitle().equalsIgnoreCase("Kit")) {
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			account = AccountManager.getInstance().get(player.getName());
+			Delay delay = event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aKit Diário") ? Delay.DIARY : event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aKit Semanal") ? Delay.WEEK : event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§aKit Mensal") ? Delay.MONTH : Delay.CUSTOM;
+			KitInventory.getInstance().create(player, TypeInventoryKit.KIT_SAME_TIME, delay, account, null, 1);
+			return;
+		} else if(event.getInventory().getTitle().startsWith("Kits ")) {
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			Delay delay = event.getInventory().getTitle().contains("Diário") ? Delay.DIARY : event.getInventory().getTitle().contains("Semanal") ? Delay.WEEK : event.getInventory().getTitle().contains("Mensal") ? Delay.MONTH : Delay.CUSTOM;
+			if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§aPágina ") || event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§cPágina ")) { 
+				int pageNow = 0;
+				if(event.getCurrentItem().getItemMeta().getDisplayName().startsWith("§a")) { 
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§aPágina ", ""));
+				} else {
+					pageNow = Integer.parseInt(event.getCurrentItem().getItemMeta().getDisplayName().replace("§cPágina ", ""));
+				}
+				KitInventory.getInstance().create(player, TypeInventoryKit.KIT_SAME_TIME, delay, account, null, pageNow);
+			} else if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				KitInventory.getInstance().create(player, TypeInventoryKit.KITS, null, account, null, 1);
+			} else { 
+				Kit kit = KitManager.getInstance().get(event.getCurrentItem().getItemMeta().getDisplayName().replace("§aKit ", ""));
+				if(event.isLeftClick()) { 
+					PlayerKits playerKit = PlayerKitManager.getInstance().get(player.getUniqueId());
+					if(playerKit == null) { 
+						playerKit = new PlayerKits(player.getUniqueId(), new ArrayList<KitCollected>());
+						PlayerKitManager.getInstance().add(playerKit);
+						playerKit = PlayerKitManager.getInstance().get(player.getUniqueId());
+					}
+					if(playerKit.allowGive(kit)) { 
+						kit.give(player);
+						playerKit.add(kit);
+						sendMessage(player, false, "§aKit §7" + kit.getName() + " §arecolhido!");
+					} else { 
+						sendMessage(player, false, "§cVocê deve aguardar §f" + playerKit.getTimeWait(kit) + " §cpara recolher este kit!");
+					}
+					player.closeInventory();
+				} else { 
+					if(kit == null) return;
+					KitInventory.getInstance().create(player, TypeInventoryKit.VIEW_KIT, null, account, kit, 1);
+				}
+			}
+			return;
+		} else if(event.getInventory().getTitle().startsWith("Visualizando kit ")) {
+			if(event.getCurrentItem() == null) return;
+			if(!event.getCurrentItem().hasItemMeta()) return;
+			if(event.getInventory() == null) return;
+			event.setCancelled(true);
+			Kit kit = KitManager.getInstance().get(event.getInventory().getTitle().replace("Visualizando kit ", ""));
+			if(kit == null) return;
+			if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase("§cVoltar")) { 
+				KitInventory.getInstance().create(player, TypeInventoryKit.KIT_SAME_TIME, kit.getDelay(), account, null, 1);
 			}
 			return;
 		}

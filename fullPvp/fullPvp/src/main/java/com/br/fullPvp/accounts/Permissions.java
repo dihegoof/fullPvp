@@ -22,6 +22,7 @@ public enum Permissions {
 	MANAGE_WARP("warps.manager", "Ver e gerenciar warps"),
 	MANAGE_SHOP("shop.manager", "Ver e gerenciar itens e sessões da loja"),
 	MANAGE_KIT("kit.manager", "Ver e gerenciar kits"),
+	MANAGE_MINE("mine.manager", "Ver e gerenciar minas"),
 	VANTAGE_WARP("warps.vantage", "Tempo de teleporte reduzido"),
 	SPAWN_VIP("spawn.vip", "Acesso ao spawn vip"),
 	MANAGE_TAG("tags.manager", "Ver e gerenciar informações das tags"), 

@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class Composition {
 	
-	int id, durability;
-	double percent;
-
+	int id, durability, percent;
+	
 }

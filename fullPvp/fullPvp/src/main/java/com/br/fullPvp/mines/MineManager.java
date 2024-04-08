@@ -6,16 +6,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.block.Block;
+
 import com.br.fullPvp.Main;
 import com.br.fullPvp.mysql.SqlQuerys;
 import com.br.fullPvp.utils.SerializeLocation;
 
 import lombok.Getter;
 
-public class MinaManager {
+public class MineManager {
 
 	@Getter
-	static MinaManager instance = new MinaManager();
+	static MineManager instance = new MineManager();
 	@Getter
 	static List<Mine> storageMines = new ArrayList<>();
 	
@@ -40,7 +42,7 @@ public class MinaManager {
 		return null;
 	}
 	
-	public void loadAllKits() { 
+	public void loadAllMines() { 
 		try {
 			int amount = 0;
 			PreparedStatement stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.MINE_SELECT_ALL.getQuery());
@@ -50,10 +52,10 @@ public class MinaManager {
 				if(!rs.getString("composition").equalsIgnoreCase("null")) { 
 					for(String names : Arrays.asList(rs.getString("composition").split(", "))) { 
 						String[] split = names.split(";");
-						composition.add(new Composition(Integer.valueOf(split[0]), Integer.valueOf(split[1]), Double.valueOf(split[2])));
+						composition.add(new Composition(Integer.valueOf(split[0]), Integer.valueOf(split[1]), Integer.valueOf(split[2])));
 					}
 				}
-				add(new Mine(rs.getString("name"), rs.getString("timetoreset"), 0L, rs.getBoolean("enable"), rs.getBoolean("enableholo"), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos1"), false), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos2"), false), rs.getBoolean("enableholo") ? SerializeLocation.getInstance().deserializeLocation(rs.getString("locholo"), true) : null, composition));
+				add(new Mine(rs.getString("name"), rs.getString("timetoreset"), 0L, rs.getBoolean("enable"), rs.getBoolean("enableholo"), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos1"), false), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos2"), false), rs.getBoolean("enableholo") ? SerializeLocation.getInstance().deserializeLocation(rs.getString("locholo"), true) : null, new ArrayList<Block>(), composition));
 				amount++;
 			}
 			Main.debug(amount > 0 ? "Carregado " + amount + " mina(s)" : "Nenhuma mina foi carregado!");
@@ -62,7 +64,7 @@ public class MinaManager {
 		}
 	}
 	
-	public void saveAllKits() { 
+	public void saveAllMines() { 
 		for(Mine m : storageMines) {
 			m.save();
 		}

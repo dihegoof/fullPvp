@@ -1,7 +1,10 @@
 package com.br.fullPvp.accounts.listener;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -76,6 +79,24 @@ public class AccountListener implements Listener {
 						"\n§aDiscord §7" + LinkManager.getLink().getDiscord() +
 						"\n§aLoja §7" + LinkManager.getLink().getShop());
 			}
+		}
+	}
+	
+	@EventHandler
+	public void onEntityDamage(EntityDamageEvent event) { 
+		if(event.getEntity() instanceof Player) { 
+			Account account = AccountManager.getInstance().get(event.getEntity().getName());
+			if(account == null) return; 
+			event.setCancelled(account.isInvencible() ? true : false);
+		}
+	}
+	
+	@EventHandler
+	public void onEntityDamageByEntity(EntityDamageByEntityEvent event) { 
+		if(event.getEntity() instanceof Player) { 
+			Account account = AccountManager.getInstance().get(event.getEntity().getName());
+			if(account == null) return; 
+			event.setCancelled(account.isInvencible() ? true : false);
 		}
 	}
 }

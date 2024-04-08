@@ -78,7 +78,7 @@ public class AccountManager {
 						tags.add(names);
 					}
 				}
-				Account account = new Account(UUID.fromString(rs.getString("uniqueid")), rs.getString("nickname"), rs.getString("rankname"), rs.getString("groupname"), rs.getString("lastgroupname"), rs.getString("clanname"), rs.getString("address"), rs.getString("lastaddress"), rs.getString("tagusing"), rs.getLong("timegroup"), rs.getLong("firstlogin"), rs.getLong("lastsee"), rs.getDouble("real"), rs.getDouble("cash"), rs.getDouble("reputation"), false, permissions, tags, null, null, null, null, null);
+				Account account = new Account(UUID.fromString(rs.getString("uniqueid")), rs.getString("nickname"), rs.getString("rankname"), rs.getString("groupname"), rs.getString("lastgroupname"), rs.getString("clanname"), rs.getString("address"), rs.getString("lastaddress"), rs.getString("tagusing"), rs.getLong("timegroup"), rs.getLong("firstlogin"), rs.getLong("lastsee"), rs.getDouble("real"), rs.getDouble("cash"), rs.getDouble("reputation"), false, true, permissions, tags, null, null, null, null, null);
 				account.loadStatus();
 				account.loadPreferences();
 				add(account);

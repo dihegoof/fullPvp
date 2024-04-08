@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -43,7 +44,7 @@ public class Account {
 	String nickName, rankName, groupName, lastGroupName, clanName, address, lastAddress, tagUsing;
 	long timeGroup, firstLogin, lastSee;
 	double real, cash, reputation;
-	boolean online;
+	boolean online, invencible;
 	List<PermissionsCase> permissions;
 	List<String> tags;
 	Player player;
@@ -71,6 +72,7 @@ public class Account {
 		this.cash = 0.0D;
 		this.reputation = 0.0D;
 		this.online = false;
+		this.invencible = true;
 		this.permissions = new ArrayList<>();
 		this.tags = new ArrayList<>();
 		this.player = player;
@@ -309,8 +311,10 @@ public class Account {
 	
 	public void updateFly() { 
 		if(getWarp() != null) { 
-			getPlayer().setAllowFlight(!getWarp().isFly() ? false : true);
-			getPlayer().setFlying(!getWarp().isFly() ? false : true);
+			if(!getPreferences().isAdminMode() || !getPlayer().getGameMode().equals(GameMode.CREATIVE)) { 
+				getPlayer().setAllowFlight(!getWarp().isFly() ? false : true);
+				getPlayer().setFlying(!getWarp().isFly() ? false : true);
+			}
 		}
 	}
 	

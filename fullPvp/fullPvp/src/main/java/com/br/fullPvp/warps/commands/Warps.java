@@ -88,7 +88,7 @@ public class Warps extends Utils implements CommandExecutor {
 								  "§aFly? §7" + (warp.isFly() ? "Sim" : "Não"),
 								  "§aPvP? §7" + (warp.isPvp() ? "Sim" : "Não"),
 								  "§aComandos bloqueados: §7" + (list.length() <= 0 ? "§cNenhum comando bloqueado!" : list.toString().substring(0, list.length() - 2)),
-								  "§aLocation: ",
+								  "§aLocalização: ",
 								  "  §7X: " + warp.getLocationReal().getX(),
 								  "  §7Y: " + warp.getLocationReal().getY(),
 								  "  §7Z: " + warp.getLocationReal().getZ(),

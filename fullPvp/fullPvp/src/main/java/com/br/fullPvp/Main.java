@@ -13,6 +13,7 @@ import com.br.fullPvp.groups.listener.ServerTimerEvent;
 import com.br.fullPvp.kits.KitManager;
 import com.br.fullPvp.kits.PlayerKitManager;
 import com.br.fullPvp.links.LinkManager;
+import com.br.fullPvp.mines.MineManager;
 import com.br.fullPvp.mysql.MySql;
 import com.br.fullPvp.ranks.RankManager;
 import com.br.fullPvp.shop.item.ItemManager;
@@ -46,8 +47,8 @@ public class Main extends JavaPlugin {
 	static Plugin plugin = null;
 	@Getter
 	static boolean debug = true;
-	static String[] listeners = { "accounts.listener", "groups.listener", "inventorys.listener", "warps.listener", "essentials.listener", "chat" };
-	static String[] commands = { "accounts.commands", "groups.commands", "ranks.commands", "links.commands", "warps.commands", "tags.commands", "essentials.commands", "clans.commands", "shop.commands", "kits.commands" };
+	static String[] listeners = { "accounts.listener", "groups.listener", "inventorys.listener", "warps.listener", "essentials.listener", "chat", "mines.listener" };
+	static String[] commands = { "accounts.commands", "groups.commands", "ranks.commands", "links.commands", "warps.commands", "tags.commands", "essentials.commands", "clans.commands", "shop.commands", "kits.commands", "mines.commands" };
 	@Getter
 	@Setter
 	static MySql mySql = null;
@@ -103,6 +104,7 @@ public class Main extends JavaPlugin {
 		ShoppingCartManager.getInstance().loadAllShoppingCart();
 		KitManager.getInstance().loadAllKits();
 		PlayerKitManager.getInstance().loadAllPlayerKits();
+		MineManager.getInstance().loadAllMines();
 	}
 	
 	private void startSaves() { 
@@ -119,5 +121,6 @@ public class Main extends JavaPlugin {
 		ShoppingCartManager.getInstance().saveAllShoppingCart();
 		KitManager.getInstance().saveAllKits();
 		PlayerKitManager.getInstance().saveAllPlayerKits();
+		MineManager.getInstance().saveAllMines();
 	}
 }

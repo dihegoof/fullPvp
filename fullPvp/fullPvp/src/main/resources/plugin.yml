@@ -36,3 +36,5 @@ commands:
      aliases: [loja]
    kits:
      aliases: [kit]
+   mines: 
+     aliases: [mina, minas, mine]

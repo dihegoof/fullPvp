@@ -78,7 +78,7 @@ public class AccountManager {
 						tags.add(names);
 					}
 				}
-				Account account = new Account(UUID.fromString(rs.getString("uniqueid")), rs.getString("nickname"), rs.getString("rankname"), rs.getString("groupname"), rs.getString("lastgroupname"), rs.getString("clanname"), rs.getString("address"), rs.getString("lastaddress"), rs.getString("tagusing"), rs.getLong("timegroup"), rs.getLong("firstlogin"), rs.getLong("lastsee"), rs.getDouble("real"), rs.getDouble("cash"), rs.getDouble("reputation"), false, true, permissions, tags, null, null, null, null, null);
+				Account account = new Account(UUID.fromString(rs.getString("uniqueid")), rs.getString("nickname"), rs.getString("rankname"), rs.getString("groupname"), rs.getString("lastgroupname"), rs.getString("clanname"), rs.getString("address"), rs.getString("lastaddress"), rs.getString("tagusing"), rs.getLong("timegroup"), rs.getLong("firstlogin"), rs.getLong("lastsee"), rs.getDouble("real"), rs.getDouble("cash"), rs.getDouble("reputation"), rs.getDouble("gold"), false, true, false, permissions, tags, new ArrayList<>(), new ArrayList<>(), null, null, null, null, null);
 				account.loadStatus();
 				account.loadPreferences();
 				add(account);
@@ -94,5 +94,25 @@ public class AccountManager {
 		for(Account a : storageAccounts) {
 			a.save();
 		}
+	}
+	
+	public int getPlayersOnline() { 
+		int amount = 0;
+		for(Account a : getStorageAccounts()) { 
+			if(a.isOnline() && !a.getPreferences().isAdminMode()) { 
+				amount++;
+			}
+		}
+		return amount;
+	}
+	
+	public int getAdminsOnline() { 
+		int amount = 0;
+		for(Account a : getStorageAccounts()) { 
+			if(a.isOnline() && a.getPreferences().isAdminMode()) { 
+				amount++;
+			}
+		}
+		return amount;
 	}
 }

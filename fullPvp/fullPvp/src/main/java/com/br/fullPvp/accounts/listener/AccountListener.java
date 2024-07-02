@@ -16,6 +16,7 @@ import com.br.fullPvp.groups.listener.ServerTimerEvent;
 import com.br.fullPvp.links.LinkManager;
 import com.br.fullPvp.utils.TagUpdate;
 import com.br.fullPvp.utils.Title;
+import com.br.fullPvp.utils.scoreboard.Score;
 
 public class AccountListener implements Listener {
 	
@@ -42,6 +43,7 @@ public class AccountListener implements Listener {
 		account.teleportSpawn();
 		account.updateFly();
 		account.sendMessage(true, "§aSeja bem-vindo ao servidor!", "§aBoa sorte e bom-jogo!");
+		Score.getInstance().create(account, Score.getTypeScore());
 	}
 	
 	@EventHandler

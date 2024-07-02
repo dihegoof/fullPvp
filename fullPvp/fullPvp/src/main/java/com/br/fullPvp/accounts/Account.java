@@ -43,10 +43,10 @@ public class Account {
 	UUID uniqueId;
 	String nickName, rankName, groupName, lastGroupName, clanName, address, lastAddress, tagUsing;
 	long timeGroup, firstLogin, lastSee;
-	double real, cash, reputation;
-	boolean online, invencible;
+	double real, cash, reputation, gold;
+	boolean online, invencible, inX1;
 	List<PermissionsCase> permissions;
-	List<String> tags;
+	List<String> tags, requestSendedX1, requestReceivedX1;
 	Player player;
 	Status status;
 	Preferences preferences;
@@ -71,10 +71,14 @@ public class Account {
 		this.real = 0.0D;
 		this.cash = 0.0D;
 		this.reputation = 0.0D;
+		this.gold = 0.0D;
 		this.online = false;
 		this.invencible = true;
+		this.inX1 = false;
 		this.permissions = new ArrayList<>();
 		this.tags = new ArrayList<>();
+		this.requestSendedX1 = new ArrayList<>();
+		this.requestReceivedX1 = new ArrayList<>();
 		this.player = player;
 		this.status = new Status(uniqueId, 0, 0, 0.0);
 		this.preferences = new Preferences(uniqueId);
@@ -104,9 +108,10 @@ public class Account {
 				stmt.setDouble(11, getReal());
 				stmt.setDouble(12, getCash());
 				stmt.setDouble(13, getReputation());
-				stmt.setString(14, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
-				stmt.setString(15, getTags().isEmpty() ? "null" : getTags().toString().replace("[", "").replace("]", ""));
-				stmt.setString(16, getUniqueId().toString());
+				stmt.setDouble(14, getGold());
+				stmt.setString(15, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
+				stmt.setString(16, getTags().isEmpty() ? "null" : getTags().toString().replace("[", "").replace("]", ""));
+				stmt.setString(17, getUniqueId().toString());
 			} else { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.ACCOUNT_INSERT.getQuery());
 				stmt.setString(1, getUniqueId().toString());
@@ -124,8 +129,9 @@ public class Account {
 				stmt.setDouble(13, getReal());
 				stmt.setDouble(14, getCash());
 				stmt.setDouble(15, getReputation());
-				stmt.setString(16, getTags().isEmpty() ? "null" : getTags().toString().replace("[", "").replace("]", ""));
-				stmt.setString(17, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
+				stmt.setDouble(16, getGold());
+				stmt.setString(17, getTags().isEmpty() ? "null" : getTags().toString().replace("[", "").replace("]", ""));
+				stmt.setString(18, list.isEmpty() ? "null" : list.toString().replace("[", "").replace("]", ""));
 			}
 			stmt.executeUpdate();
 			Main.debug("Conta de " + getNickName() + " salva, preparando para salvar Prefêrencias e Status!");
@@ -180,6 +186,8 @@ public class Account {
 			return getCash() >= amount;
 		} else if(typeCoin.equals(TypeCoin.REPUTACAO)) { 
 			return getReputation() >= amount;
+		} else if(typeCoin.equals(TypeCoin.GOLD)) { 
+			return getGold() >= amount;
 		}
 		return false;
 	}
@@ -191,6 +199,8 @@ public class Account {
 			return getCash();
 		} else if(typeCoin.equals(TypeCoin.REPUTACAO)) { 
 			return getReputation();
+		} else if(typeCoin.equals(TypeCoin.GOLD)) { 
+			return getGold();
 		}
 		return 0.0;
 	}
@@ -202,6 +212,8 @@ public class Account {
 			this.cash = this.cash < amount ? 0 : this.cash - amount;
 		} else if(typeCoin.equals(TypeCoin.REPUTACAO)) { 
 			this.reputation = this.reputation < amount ? 0 : this.reputation - amount;
+		} else if(typeCoin.equals(TypeCoin.GOLD)) { 
+			this.gold = this.gold < amount ? 0 : this.gold - amount;
 		}
 	}
 
@@ -212,6 +224,8 @@ public class Account {
 			this.cash += amount;
 		} else if(typeCoin.equals(TypeCoin.REPUTACAO)) { 
 			this.reputation += amount;
+		} else if(typeCoin.equals(TypeCoin.GOLD)) { 
+			this.gold += amount;
 		}
 	}
 	
@@ -270,6 +284,25 @@ public class Account {
 		return has;
 	}
 	
+	public String percentRank() { 
+		StringBuilder percent = new StringBuilder();
+		double count = 0.0;
+		int percentFinal = 0;
+		for(Requeriments r : RankManager.getInstance().get(getRankName()).nextRank().getRequirements()) { 
+			if(r.getTypeCoin().equals(TypeCoin.REAL)) { 
+				count = get(r.getTypeCoin()) / r.getValue();
+			} else if(r.getTypeCoin().equals(TypeCoin.CASH)) { 
+				count = get(r.getTypeCoin()) / r.getValue();
+			} else if(r.getTypeCoin().equals(TypeCoin.REPUTACAO)) { 
+				count = get(r.getTypeCoin()) / r.getValue();
+			} else if(r.getTypeCoin().equals(TypeCoin.GOLD)) { 
+				count = get(r.getTypeCoin()) / r.getValue();
+			}
+			percentFinal += count;
+		}
+		return percent.append((percentFinal / 4) > 100 ? "100%" : percentFinal / 4).toString() + "%";
+	}
+	
 	public void updatePrefix() { 
 		if(isOnline()) { 
 			Group group = GroupManager.getInstance().get(getGroupName());
@@ -281,7 +314,7 @@ public class Account {
 					clan = ClanManager.getInstance().get(getClanName());
 					if(clan == null) return;
 				}
-				TagUpdate.getInstance().setTag(getNickName(), (!hasOtherTag() ? (group.getPrefix().length() == 2 ? group.getPrefix() : group.getPrefix() + " ") : (tag.getPrefix().length() == 2 ? tag.getPrefix() : tag.getPrefix() + " ")), (clan != null ? " §7[" + clan.getTag() + "]" : ""), group.getPriority());
+				TagUpdate.getInstance().setTag(getNickName(), (!hasOtherTag() ? (group.getPrefix().length() < 3 ? group.getPrefix() : group.getPrefix() + " ") : (tag.getPrefix().length() < 3 ? tag.getPrefix() : tag.getPrefix() + " ")), (clan != null ? " §7[" + clan.getTag() + "]" : ""), group.getPriority());
 			}
 		}
 	}

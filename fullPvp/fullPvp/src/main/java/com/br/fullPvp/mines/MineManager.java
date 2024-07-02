@@ -55,12 +55,14 @@ public class MineManager {
 						composition.add(new Composition(Integer.valueOf(split[0]), Integer.valueOf(split[1]), Integer.valueOf(split[2])));
 					}
 				}
-				add(new Mine(rs.getString("name"), rs.getString("timetoreset"), 0L, rs.getBoolean("enable"), rs.getBoolean("enableholo"), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos1"), false), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos2"), false), rs.getBoolean("enableholo") ? SerializeLocation.getInstance().deserializeLocation(rs.getString("locholo"), true) : null, new ArrayList<Block>(), composition));
+				Mine mine = new Mine(rs.getString("name"), rs.getString("timetoreset"), 0L, rs.getBoolean("enable"), rs.getBoolean("enableholo"), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos1"), false), SerializeLocation.getInstance().deserializeLocation(rs.getString("pos2"), false), rs.getBoolean("enableholo") ? SerializeLocation.getInstance().deserializeLocation(rs.getString("locholo"), true) : null, new ArrayList<Block>(), composition, null);
+				mine.reset();
+				add(mine);
 				amount++;
 			}
-			Main.debug(amount > 0 ? "Carregado " + amount + " mina(s)" : "Nenhuma mina foi carregado!");
+			Main.debug(amount > 0 ? "Carregadas " + amount + " mina(s)" : "Nenhuma mina foi carregada!");
 		} catch (Exception e) {
-			Main.debug("Ocorreu um erro ao carregar os mina !", e.getLocalizedMessage());
+			Main.debug("Ocorreu um erro ao carregar as minas!", e.getMessage());
 		}
 	}
 	

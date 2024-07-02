@@ -40,6 +40,14 @@ public class MineListener extends Utils implements Listener {
 				if(System.currentTimeMillis() > m.getTime()) {
 					m.reset();
 				}
+				if(m.isEnableHolo()) { 
+					if(m.getLocHolo() != null && m.getHologram() != null) { 
+						m.getHologram().updateLine(1, "§fReseta em §7" + compareTime(m.getTime()));
+					} else { 
+						m.getLocHolo().getChunk().load();
+						m.spawnHolo();
+					}
+				}
 			}
 		}
 	}

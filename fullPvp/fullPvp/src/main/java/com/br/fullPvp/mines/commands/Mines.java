@@ -55,7 +55,7 @@ public class Mines extends Utils implements CommandExecutor {
 					Position position = PositionManager.getInstance().getPosition(player.getUniqueId());
 					if(position != null && position.getPos1() != null && position.getPos2() != null) { 
 						if(mine == null) { 
-							MineManager.getInstance().add(new Mine(captalize(args[1]), "5m", 0L, false, false, PositionManager.getInstance().getPosition(player.getUniqueId()).getPos1(), PositionManager.getInstance().getPosition(player.getUniqueId()).getPos2(), null, new ArrayList<Block>(), new ArrayList<Composition>()));
+							MineManager.getInstance().add(new Mine(captalize(args[1]), "5m", 0L, false, false, PositionManager.getInstance().getPosition(player.getUniqueId()).getPos1(), PositionManager.getInstance().getPosition(player.getUniqueId()).getPos2(), null, new ArrayList<Block>(), new ArrayList<Composition>(), null));
 							sendMessage(sender, false, "§aMina §7" + captalize(args[1]) + " §acriada!");
 							position.remove(player);
 							PositionManager.getInstance().remove(player.getUniqueId());
@@ -127,7 +127,7 @@ public class Mines extends Utils implements CommandExecutor {
 				} else if(args[0].equalsIgnoreCase("definirconf")) { 
 					Mine mine = MineManager.getInstance().get(captalize(args[1]));
 					if(mine != null) { 
-						if(args[0].equalsIgnoreCase("func")) { 
+						if(args[2].equalsIgnoreCase("func")) { 
 							if(mine.isComplete()) {
 								mine.setEnable(mine.isEnable() ? false : true);
 								mine.setTime(TimeManager.getInstance().getTime(mine.getTimeToReset()));
@@ -136,6 +136,29 @@ public class Mines extends Utils implements CommandExecutor {
 							} else { 
 								sendMessage(player, false, "§cA mina deve estar com a composição completa!");
 							}
+						} else if(args[2].equalsIgnoreCase("locholo")) { 
+							mine.setLocHolo(player.getLocation());
+							if(mine.getHologram() != null) { 
+								mine.getHologram().despawn();
+							}
+							sendMessage(player, false, "§aLocalização de holograma da mina §7" + mine.getName() + " §aatualizada!");
+						} else if(args[2].equalsIgnoreCase("holo")) { 
+							if(mine.isEnableHolo()) { 
+								mine.setEnableHolo(false);
+								if(mine.getHologram() != null) { 
+									mine.getHologram().despawn();
+								}
+							} else { 
+								mine.setEnableHolo(true);
+								if(mine.getLocHolo() != null) { 
+									mine.spawnHolo();
+								} else { 
+									sendMessage(player, false, "§cVocê precisa definir uma localização para o holograma!");
+									return true;
+								}
+							}
+							sendMessage(sender, false, "§aMina §7" + mine.getName() + " §aagora " + (mine.isEnableHolo() ? "com" : "sem") + " holograma!");
+							
 						}
 					} else { 
 						sendMessage(sender, false, "§cEsta mina não existe!");
@@ -170,13 +193,13 @@ public class Mines extends Utils implements CommandExecutor {
 						sendMessage(sender, false, "§cEsta mina não existe!");
 					}
 				} else if(args[0].equalsIgnoreCase("definirconf")) { 
-					Mine mine = MineManager.getInstance().get(captalize(args[2]));
+					Mine mine = MineManager.getInstance().get(captalize(args[1]));
 					if(mine != null) { 
-						if(args[1].equalsIgnoreCase("tempo")) {
+						if(args[2].equalsIgnoreCase("tempo")) {
 							if(isTime(args[3])) { 
 								mine.setTimeToReset(args[3]);
 								mine.setTime(TimeManager.getInstance().getTime(args[3]));
-								sendMessage(player, false, "§aTempo para resetar mina §7" + mine.getName() + " §aalterado para §f" + TimeManager.getInstance().getTime(args[3]) + "§a!");
+								sendMessage(player, false, "§aTempo para resetar mina §7" + mine.getName() + " §aalterado para §f" + compareTime(TimeManager.getInstance().getTime(args[3])) + "§a!");
 							} else { 
 								sendMessage(sender, false, "§cTempo inválido!");
 								return true;

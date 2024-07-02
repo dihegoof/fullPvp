@@ -15,6 +15,9 @@ import com.br.fullPvp.Main;
 import com.br.fullPvp.mysql.SqlQuerys;
 import com.br.fullPvp.utils.SerializeLocation;
 import com.br.fullPvp.utils.TimeManager;
+import com.br.fullPvp.utils.Utils;
+import com.br.fullPvp.utils.holograms.Hologram;
+import com.br.fullPvp.utils.holograms.HologramLibrary;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +27,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Mine {
+public class Mine extends Utils {
 
 	String name, timeToReset;
 	long time;
@@ -32,6 +35,7 @@ public class Mine {
 	Location pos1, pos2, locHolo;
 	List<Block> blocks;
 	List<Composition> composition;
+	Hologram hologram;
 	
 	public void save() { 
 		try {
@@ -42,6 +46,16 @@ public class Mine {
 			}
 			if(exists()) { 
 				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.MINE_UPDATE.getQuery());
+				stmt.setString(1, getTimeToReset());
+				stmt.setBoolean(2, isEnable());
+				stmt.setBoolean(3, isEnableHolo());
+				stmt.setString(4, SerializeLocation.getInstance().serializeLocation(getPos1(), false));
+				stmt.setString(5, SerializeLocation.getInstance().serializeLocation(getPos2(), false));
+				stmt.setString(6, isEnableHolo() ? SerializeLocation.getInstance().serializeLocation(getLocHolo(), true) : "world;0;0;0;0;0");
+				stmt.setString(7, composition.isEmpty() ? "null" : composition.toString().replace("[", "").replace("]", ""));
+				stmt.setString(8, getName());
+			} else { 
+				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.MINE_INSERT.getQuery());
 				stmt.setString(1, getName());
 				stmt.setString(2, getTimeToReset());
 				stmt.setBoolean(3, isEnable());
@@ -50,16 +64,6 @@ public class Mine {
 				stmt.setString(6, SerializeLocation.getInstance().serializeLocation(getPos2(), false));
 				stmt.setString(7, isEnableHolo() ? SerializeLocation.getInstance().serializeLocation(getLocHolo(), true) : "world;0;0;0;0;0");
 				stmt.setString(8, composition.isEmpty() ? "null" : composition.toString().replace("[", "").replace("]", ""));
-			} else { 
-				stmt = Main.getMySql().getConn().prepareStatement(SqlQuerys.MINE_INSERT.getQuery());
-				stmt.setString(1, getTimeToReset());
-				stmt.setBoolean(2, isEnable());
-				stmt.setString(3, SerializeLocation.getInstance().serializeLocation(getPos1(), false));
-				stmt.setString(4, SerializeLocation.getInstance().serializeLocation(getPos2(), false));
-				stmt.setBoolean(5, isEnableHolo());
-				stmt.setString(6, isEnableHolo() ? SerializeLocation.getInstance().serializeLocation(getLocHolo(), true) : "world;0;0;0;0;0");
-				stmt.setString(7, composition.isEmpty() ? "null" : composition.toString().replace("[", "").replace("]", ""));
-				stmt.setString(8, getName());
 			}
 			stmt.executeUpdate();
 			Main.debug("Mina " + getName() + " salva!");
@@ -168,5 +172,14 @@ public class Mine {
     	}
         this.time = timeFuture;
         this.blocks = list;
+	}
+	
+	public void spawnHolo() { 
+		if(getLocHolo() != null && isEnableHolo()) { 
+			Hologram holo = HologramLibrary.createHologram(getLocHolo(), "§fReseta em §7" + compareTime(getTime()), "§b§lESTATISTÍCAS:"); 
+			holo.spawn();
+			setHologram(holo);
+
+		}
 	}
 }

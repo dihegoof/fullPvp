@@ -19,6 +19,7 @@ import com.br.fullPvp.inventorys.ClanInventory;
 import com.br.fullPvp.inventorys.ClanInventory.TypeInventoryClan;
 import com.br.fullPvp.utils.ActionBar;
 import com.br.fullPvp.utils.Utils;
+import com.br.fullPvp.utils.scoreboard.Score;
 
 public class Clans extends Utils implements CommandExecutor {
 	
@@ -49,6 +50,7 @@ public class Clans extends Utils implements CommandExecutor {
 							clan.sendMessage(true, "O jogador " + player.getName() + " saiu do clã");
 							account.setClanName("NRE");
 							account.updatePrefix();
+							Score.getInstance().turnMode(account, true);
 						} else { 
 							sendMessage(player, false, "§cVocê não pode sair do clã, você deve deleta-lo!");
 						}
@@ -65,10 +67,14 @@ public class Clans extends Utils implements CommandExecutor {
 								a.sendMessage(false, "§cSeu clã foi deletado pode líder!");
 								a.setClanName("NRE");
 								a.updatePrefix();
+								if(a.getPlayer() != null) { 
+									Score.getInstance().turnMode(a, true);
+								}
 							}
 							clan.delete();
 							clan.getStatus().delete();
 							ClanManager.getInstance().remove(clan);
+							Score.getInstance().turnMode(account, true);
 						} else { 
 							sendMessage(player, false, "§cSomente o líder pode deletar o clã!");
 						}
@@ -290,6 +296,7 @@ public class Clans extends Utils implements CommandExecutor {
 									clan.setMembers(members);
 									account.setClanName(args[1]);
 									account.updatePrefix();
+									Score.getInstance().turnMode(account, true);
 									sendMessage(player, false, "§aVocê criou o clã §7" + args[1] + "§a!");
 									for(Player p : Bukkit.getOnlinePlayers()) { 
 										if(p != player) { 
@@ -320,6 +327,7 @@ public class Clans extends Utils implements CommandExecutor {
 								account.setClanName(clan.getName());
 								account.updatePrefix();
 								sendMessage(player, false, "§aVocê entrou no clã §7" + clan.getName() + "§a!");
+								Score.getInstance().turnMode(account, true);
 							} else {
 								sendMessage(player, false, "§cVocê não recebeu convite para entrar nesse clã!");
 							}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,6 +47,7 @@ public class EssentialsListener extends Utils implements Listener {
 				player.hidePlayer(p);
 				p.getPlayer().setAllowFlight(true);
 				p.getPlayer().setFlying(true);
+				p.setGameMode(GameMode.CREATIVE);
 			}
 		}
 	}
@@ -95,7 +97,7 @@ public class EssentialsListener extends Utils implements Listener {
 			displayName = "§7[" + rank.getPrefix().replace("&", "§") + "§7] ";
 		}
 		if(tag == null) { 
-			displayName += group.getPrefix().replace("&", "§");
+			displayName += (group.getPrefix().length() < 3 ? group.getPrefix().replace("&", "§") : group.getPrefix().replace("&", "§") + " ");
 		} else { 
 			displayName += tag.getPrefix().replace("&", "§");
 		}

@@ -15,6 +15,7 @@ import com.br.fullPvp.accounts.Account;
 import com.br.fullPvp.accounts.AccountManager;
 import com.br.fullPvp.accounts.Permissions;
 import com.br.fullPvp.utils.Utils;
+import com.br.fullPvp.utils.scoreboard.Score;
 
 public class Admin extends Utils implements CommandExecutor {
 	
@@ -66,6 +67,7 @@ public class Admin extends Utils implements CommandExecutor {
 					account.getPreferences().setAdminMode(false);
 					account.updateFly();
 				}
+				Score.getInstance().turnMode(account, true);
 				sendMessage(player, false, "§dVocê " + (account.getPreferences().isAdminMode() ? "entrou" : "saiu") + " do modo admin!");
 				return true;
 			}
